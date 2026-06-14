@@ -298,6 +298,7 @@ if (configured) {
   dbRef = ref(db, 'mealplanner');
   // Listen for remote changes and re-render
   onValue(dbRef, (snapshot) => {
+    document.getElementById('sync-status').textContent = '🟢 Synced';
     const data = snapshot.val();
     if (data) {
       _suppressSave = true;
@@ -307,9 +308,15 @@ if (configured) {
       if (active?.id === 'view-meals') renderMeals();
       if (active?.id === 'view-planner') renderPlanner();
       if (active?.id === 'view-shopping') renderShopping();
+    } else {
+      // Database is empty — push the default meals up so all users see them
+      set(dbRef, state);
     }
+  }, (error) => {
+    document.getElementById('sync-status').textContent = '🔴 Connection error';
+    console.error('Firebase error:', error);
   });
-  document.getElementById('sync-status').textContent = '🔴 Connecting…';
+  document.getElementById('sync-status').textContent = '🟡 Connecting…';
 } else {
   document.getElementById('setup-banner').style.display = 'block';
 }
