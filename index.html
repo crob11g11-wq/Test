@@ -309,14 +309,14 @@ if (configured) {
   onValue(dbRef, (snapshot) => {
     document.getElementById('sync-status').textContent = '🟢 Synced';
     const data = snapshot.val();
-    const hasMeals = data && Array.isArray(data.meals) && data.meals.length > 0;
-    if (hasMeals) {
+    if (data) {
+      // Firebase converts arrays to objects — convert them back
+      if (data.meals && !Array.isArray(data.meals)) data.meals = Object.values(data.meals);
+      if (data.shoppingList && !Array.isArray(data.shoppingList)) data.shoppingList = Object.values(data.shoppingList);
+      if (data.meals) data.meals.forEach(m => { if (m.ingredients && !Array.isArray(m.ingredients)) m.ingredients = Object.values(m.ingredients); });
       _suppressSave = true;
       state = data;
       _suppressSave = false;
-    } else {
-      // Database empty or missing meals — seed with defaults and save
-      set(dbRef, state);
     }
     const active = document.querySelector('.view.active');
     if (active?.id === 'view-meals') renderMeals();
