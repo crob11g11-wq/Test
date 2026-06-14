@@ -318,10 +318,10 @@ if (configured) {
       state = data;
       _suppressSave = false;
     }
-    const active = document.querySelector('.view.active');
-    if (active?.id === 'view-meals') renderMeals();
-    if (active?.id === 'view-planner') renderPlanner();
-    if (active?.id === 'view-shopping') renderShopping();
+    // Always re-render all views when Firebase data arrives
+    renderMeals();
+    renderPlanner();
+    renderShopping();
   }, (error) => {
     document.getElementById('sync-status').textContent = '🔴 Connection error';
     console.error('Firebase error:', error);
@@ -770,8 +770,8 @@ Object.assign(window, {
   generateShoppingList, toggleItem, removeItem, clearChecked, addExtraItem,
 });
 
-// Initial render
-renderMeals();
+// Only render immediately if Firebase is not configured (local-only mode)
+if (!configured) renderMeals();
 </script>
 </body>
 </html>
