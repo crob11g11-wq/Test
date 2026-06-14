@@ -212,9 +212,9 @@
         <select id="meal-category">
           <option>Pasta</option>
           <option>Fish & Seafood</option>
+          <option>Vegetarian</option>
           <option>Chicken</option>
           <option>Beef</option>
-          <option>Vegetarian</option>
           <option>Soup</option>
           <option>Salad</option>
           <option>Curry</option>
@@ -279,18 +279,7 @@ function loadState() {
 function defaultState() {
   return {
     meals: [
-      // ── Pescatarian suggestions (BBC Good Food & top-rated sources) ──
-      { id: uid(), name: 'Chilli Prawn Linguine', category: 'Pasta', portions: 4, source: 'BBC Good Food', ingredients: [
-        { name: 'Raw King Prawns', amount: '400g', category: 'Meat & Fish' },
-        { name: 'Linguine', amount: '400g', category: 'Pantry' },
-        { name: 'Cherry Tomatoes', amount: '250g', category: 'Produce' },
-        { name: 'Garlic', amount: '4 cloves', category: 'Produce' },
-        { name: 'Red Chilli', amount: '1–2', category: 'Produce' },
-        { name: 'Rocket', amount: '50g', category: 'Produce' },
-        { name: 'Lemon', amount: '1', category: 'Produce' },
-        { name: 'Olive Oil', amount: '3 tbsp', category: 'Pantry' },
-        { name: 'Parmesan', amount: '40g', category: 'Dairy & Eggs' },
-      ]},
+      // ── Fish & Seafood (5) ──
       { id: uid(), name: 'Lemon & Herb Salmon Traybake', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
         { name: 'Salmon Fillets', amount: '4 (approx 600g)', category: 'Meat & Fish' },
         { name: 'Baby Potatoes', amount: '500g', category: 'Produce' },
@@ -311,38 +300,6 @@ function defaultState() {
         { name: 'Plain Flour', amount: '3 tbsp', category: 'Pantry' },
         { name: 'Breadcrumbs', amount: '80g', category: 'Pantry' },
         { name: 'Sunflower Oil', amount: '2 tbsp', category: 'Pantry' },
-      ]},
-      { id: uid(), name: 'Creamy Coconut Fish Curry', category: 'Curry', portions: 4, source: 'BBC Good Food', ingredients: [
-        { name: 'Cod Fillets', amount: '600g', category: 'Meat & Fish' },
-        { name: 'Coconut Milk', amount: '400ml', category: 'Pantry' },
-        { name: 'Chopped Tomatoes', amount: '400g tin', category: 'Pantry' },
-        { name: 'Onion', amount: '1 large', category: 'Produce' },
-        { name: 'Garlic', amount: '3 cloves', category: 'Produce' },
-        { name: 'Fresh Ginger', amount: '2cm piece', category: 'Produce' },
-        { name: 'Curry Paste (mild)', amount: '3 tbsp', category: 'Pantry' },
-        { name: 'Spinach', amount: '100g', category: 'Produce' },
-        { name: 'Basmati Rice', amount: '300g', category: 'Pantry' },
-        { name: 'Fresh Coriander', amount: 'small bunch', category: 'Produce' },
-      ]},
-      { id: uid(), name: 'Prawn & Avocado Salad', category: 'Salad', portions: 2, source: 'BBC Good Food', ingredients: [
-        { name: 'Cooked King Prawns', amount: '200g', category: 'Meat & Fish' },
-        { name: 'Avocado', amount: '2 ripe', category: 'Produce' },
-        { name: 'Cherry Tomatoes', amount: '150g', category: 'Produce' },
-        { name: 'Cucumber', amount: '½', category: 'Produce' },
-        { name: 'Mixed Salad Leaves', amount: '80g', category: 'Produce' },
-        { name: 'Lemon', amount: '1', category: 'Produce' },
-        { name: 'Olive Oil', amount: '2 tbsp', category: 'Pantry' },
-        { name: 'Chilli Flakes', amount: '½ tsp', category: 'Pantry' },
-      ]},
-      { id: uid(), name: 'Smoked Salmon Pasta', category: 'Pasta', portions: 4, source: 'BBC Good Food', ingredients: [
-        { name: 'Smoked Salmon', amount: '200g', category: 'Meat & Fish' },
-        { name: 'Tagliatelle', amount: '400g', category: 'Pantry' },
-        { name: 'Crème Fraîche', amount: '200ml', category: 'Dairy & Eggs' },
-        { name: 'Capers', amount: '2 tbsp', category: 'Pantry' },
-        { name: 'Lemon', amount: '1', category: 'Produce' },
-        { name: 'Fresh Dill', amount: 'small bunch', category: 'Produce' },
-        { name: 'Garlic', amount: '1 clove', category: 'Produce' },
-        { name: 'Parmesan', amount: '40g', category: 'Dairy & Eggs' },
       ]},
       { id: uid(), name: 'Teriyaki Salmon with Rice', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
         { name: 'Salmon Fillets', amount: '4 (approx 600g)', category: 'Meat & Fish' },
@@ -367,18 +324,6 @@ function defaultState() {
         { name: 'White Wine', amount: '100ml', category: 'Pantry' },
         { name: 'Crusty Bread', amount: 'to serve', category: 'Bakery' },
       ]},
-      { id: uid(), name: 'Thai-Style Prawn Noodle Soup', category: 'Soup', portions: 4, source: 'BBC Good Food', ingredients: [
-        { name: 'Raw King Prawns', amount: '300g', category: 'Meat & Fish' },
-        { name: 'Rice Noodles', amount: '200g', category: 'Pantry' },
-        { name: 'Coconut Milk', amount: '400ml', category: 'Pantry' },
-        { name: 'Chicken or Veg Stock', amount: '700ml', category: 'Pantry' },
-        { name: 'Red Thai Curry Paste', amount: '2 tbsp', category: 'Pantry' },
-        { name: 'Pak Choi', amount: '2 heads', category: 'Produce' },
-        { name: 'Lime', amount: '2', category: 'Produce' },
-        { name: 'Fresh Coriander', amount: 'small bunch', category: 'Produce' },
-        { name: 'Fish Sauce', amount: '1 tbsp', category: 'Pantry' },
-        { name: 'Spring Onions', amount: '3', category: 'Produce' },
-      ]},
       { id: uid(), name: 'Seared Tuna Niçoise Salad', category: 'Salad', portions: 4, source: 'BBC Good Food', ingredients: [
         { name: 'Fresh Tuna Steaks', amount: '4 (approx 600g)', category: 'Meat & Fish' },
         { name: 'New Potatoes', amount: '400g', category: 'Produce' },
@@ -390,6 +335,66 @@ function defaultState() {
         { name: 'Olive Oil', amount: '4 tbsp', category: 'Pantry' },
         { name: 'Dijon Mustard', amount: '1 tsp', category: 'Pantry' },
         { name: 'Red Wine Vinegar', amount: '1 tbsp', category: 'Pantry' },
+      ]},
+      // ── Vegetarian (5) ──
+      { id: uid(), name: 'Mushroom Risotto', category: 'Vegetarian', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Arborio Rice', amount: '350g', category: 'Pantry' },
+        { name: 'Chestnut Mushrooms', amount: '400g', category: 'Produce' },
+        { name: 'Dried Porcini Mushrooms', amount: '15g', category: 'Pantry' },
+        { name: 'Vegetable Stock', amount: '1.2 litres', category: 'Pantry' },
+        { name: 'Onion', amount: '1 large', category: 'Produce' },
+        { name: 'Garlic', amount: '2 cloves', category: 'Produce' },
+        { name: 'Dry White Wine', amount: '150ml', category: 'Pantry' },
+        { name: 'Parmesan', amount: '80g', category: 'Dairy & Eggs' },
+        { name: 'Butter', amount: '50g', category: 'Dairy & Eggs' },
+        { name: 'Fresh Thyme', amount: 'few sprigs', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Spinach & Ricotta Pasta', category: 'Pasta', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Pasta (rigatoni or penne)', amount: '400g', category: 'Pantry' },
+        { name: 'Ricotta', amount: '250g', category: 'Dairy & Eggs' },
+        { name: 'Baby Spinach', amount: '200g', category: 'Produce' },
+        { name: 'Garlic', amount: '2 cloves', category: 'Produce' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Nutmeg', amount: 'pinch', category: 'Pantry' },
+        { name: 'Parmesan', amount: '60g', category: 'Dairy & Eggs' },
+        { name: 'Olive Oil', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Chilli Flakes', amount: '½ tsp', category: 'Pantry' },
+      ]},
+      { id: uid(), name: 'Red Lentil Dahl', category: 'Curry', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Red Lentils', amount: '300g', category: 'Pantry' },
+        { name: 'Coconut Milk', amount: '400ml', category: 'Pantry' },
+        { name: 'Chopped Tomatoes', amount: '400g tin', category: 'Pantry' },
+        { name: 'Onion', amount: '1 large', category: 'Produce' },
+        { name: 'Garlic', amount: '3 cloves', category: 'Produce' },
+        { name: 'Fresh Ginger', amount: '2cm piece', category: 'Produce' },
+        { name: 'Ground Cumin', amount: '1 tsp', category: 'Pantry' },
+        { name: 'Ground Coriander', amount: '1 tsp', category: 'Pantry' },
+        { name: 'Turmeric', amount: '½ tsp', category: 'Pantry' },
+        { name: 'Basmati Rice', amount: '300g', category: 'Pantry' },
+        { name: 'Fresh Coriander', amount: 'small bunch', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Roasted Vegetable Tart', category: 'Vegetarian', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Ready-rolled Puff Pastry', amount: '320g sheet', category: 'Frozen' },
+        { name: 'Courgette', amount: '1 large', category: 'Produce' },
+        { name: 'Red Pepper', amount: '2', category: 'Produce' },
+        { name: 'Cherry Tomatoes', amount: '200g', category: 'Produce' },
+        { name: 'Red Onion', amount: '1', category: 'Produce' },
+        { name: 'Feta Cheese', amount: '100g', category: 'Dairy & Eggs' },
+        { name: 'Egg', amount: '1 (for egg wash)', category: 'Dairy & Eggs' },
+        { name: 'Pesto', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'Olive Oil', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Fresh Basil', amount: 'small bunch', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Butternut Squash Soup', category: 'Soup', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Butternut Squash', amount: '1 large (approx 1kg)', category: 'Produce' },
+        { name: 'Vegetable Stock', amount: '900ml', category: 'Pantry' },
+        { name: 'Onion', amount: '1 large', category: 'Produce' },
+        { name: 'Garlic', amount: '2 cloves', category: 'Produce' },
+        { name: 'Coconut Milk', amount: '200ml', category: 'Pantry' },
+        { name: 'Fresh Ginger', amount: '2cm piece', category: 'Produce' },
+        { name: 'Chilli Flakes', amount: '½ tsp', category: 'Pantry' },
+        { name: 'Olive Oil', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Crusty Bread', amount: 'to serve', category: 'Bakery' },
       ]},
     ],
     week: {},  // { Mon: { mealId, portions } }
