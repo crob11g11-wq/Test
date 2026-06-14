@@ -292,6 +292,15 @@ let db = null;
 let dbRef = null;
 let _suppressSave = false;
 
+// ── STATE (must be initialised before Firebase connects) ──
+let state = defaultState();
+try { state = JSON.parse(localStorage.getItem('mealplanner') || 'null') || defaultState(); } catch {}
+let editingMealId = null;
+let pendingDay = null;
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SHOP_CATEGORIES = ['Produce','Meat & Fish','Dairy & Eggs','Bakery','Pantry','Frozen','Other'];
+
 if (configured) {
   const app = initializeApp(FIREBASE_CONFIG);
   db = getDatabase(app);
@@ -320,14 +329,6 @@ if (configured) {
 } else {
   document.getElementById('setup-banner').style.display = 'block';
 }
-
-// ── STATE ──
-let state = loadState();
-let editingMealId = null;
-let pendingDay = null;
-
-const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const SHOP_CATEGORIES = ['Produce','Meat & Fish','Dairy & Eggs','Bakery','Pantry','Frozen','Other'];
 
 function loadState() {
   try {
