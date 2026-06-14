@@ -211,12 +211,13 @@
         <label>Category</label>
         <select id="meal-category">
           <option>Pasta</option>
+          <option>Fish & Seafood</option>
           <option>Chicken</option>
           <option>Beef</option>
-          <option>Fish</option>
           <option>Vegetarian</option>
           <option>Soup</option>
           <option>Salad</option>
+          <option>Curry</option>
           <option>Pizza</option>
           <option>Other</option>
         </select>
@@ -278,21 +279,117 @@ function loadState() {
 function defaultState() {
   return {
     meals: [
-      { id: uid(), name: 'Spaghetti Bolognese', category: 'Pasta', portions: 4, ingredients: [
-        { name: 'Minced Beef', amount: '500g', category: 'Meat & Fish' },
-        { name: 'Spaghetti', amount: '400g', category: 'Pantry' },
-        { name: 'Tomato Passata', amount: '500ml', category: 'Pantry' },
+      // ── Pescatarian suggestions (BBC Good Food & top-rated sources) ──
+      { id: uid(), name: 'Chilli Prawn Linguine', category: 'Pasta', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Raw King Prawns', amount: '400g', category: 'Meat & Fish' },
+        { name: 'Linguine', amount: '400g', category: 'Pantry' },
+        { name: 'Cherry Tomatoes', amount: '250g', category: 'Produce' },
+        { name: 'Garlic', amount: '4 cloves', category: 'Produce' },
+        { name: 'Red Chilli', amount: '1–2', category: 'Produce' },
+        { name: 'Rocket', amount: '50g', category: 'Produce' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Olive Oil', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'Parmesan', amount: '40g', category: 'Dairy & Eggs' },
+      ]},
+      { id: uid(), name: 'Lemon & Herb Salmon Traybake', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Salmon Fillets', amount: '4 (approx 600g)', category: 'Meat & Fish' },
+        { name: 'Baby Potatoes', amount: '500g', category: 'Produce' },
+        { name: 'Asparagus', amount: '200g', category: 'Produce' },
+        { name: 'Cherry Tomatoes', amount: '200g', category: 'Produce' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Garlic', amount: '3 cloves', category: 'Produce' },
+        { name: 'Olive Oil', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'Fresh Dill', amount: 'small bunch', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Salmon Fishcakes', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Salmon Fillets', amount: '450g', category: 'Meat & Fish' },
+        { name: 'Mashed Potato', amount: '500g', category: 'Produce' },
+        { name: 'Spring Onions', amount: '4', category: 'Produce' },
+        { name: 'Fresh Dill', amount: '2 tbsp', category: 'Produce' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Egg', amount: '1', category: 'Dairy & Eggs' },
+        { name: 'Plain Flour', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'Breadcrumbs', amount: '80g', category: 'Pantry' },
+        { name: 'Sunflower Oil', amount: '2 tbsp', category: 'Pantry' },
+      ]},
+      { id: uid(), name: 'Creamy Coconut Fish Curry', category: 'Curry', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Cod Fillets', amount: '600g', category: 'Meat & Fish' },
+        { name: 'Coconut Milk', amount: '400ml', category: 'Pantry' },
+        { name: 'Chopped Tomatoes', amount: '400g tin', category: 'Pantry' },
         { name: 'Onion', amount: '1 large', category: 'Produce' },
         { name: 'Garlic', amount: '3 cloves', category: 'Produce' },
-        { name: 'Parmesan', amount: '80g', category: 'Dairy & Eggs' },
+        { name: 'Fresh Ginger', amount: '2cm piece', category: 'Produce' },
+        { name: 'Curry Paste (mild)', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'Spinach', amount: '100g', category: 'Produce' },
+        { name: 'Basmati Rice', amount: '300g', category: 'Pantry' },
+        { name: 'Fresh Coriander', amount: 'small bunch', category: 'Produce' },
       ]},
-      { id: uid(), name: 'Chicken Stir-fry', category: 'Chicken', portions: 4, ingredients: [
-        { name: 'Chicken Breast', amount: '600g', category: 'Meat & Fish' },
-        { name: 'Mixed Vegetables', amount: '400g', category: 'Produce' },
+      { id: uid(), name: 'Prawn & Avocado Salad', category: 'Salad', portions: 2, source: 'BBC Good Food', ingredients: [
+        { name: 'Cooked King Prawns', amount: '200g', category: 'Meat & Fish' },
+        { name: 'Avocado', amount: '2 ripe', category: 'Produce' },
+        { name: 'Cherry Tomatoes', amount: '150g', category: 'Produce' },
+        { name: 'Cucumber', amount: '½', category: 'Produce' },
+        { name: 'Mixed Salad Leaves', amount: '80g', category: 'Produce' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Olive Oil', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Chilli Flakes', amount: '½ tsp', category: 'Pantry' },
+      ]},
+      { id: uid(), name: 'Smoked Salmon Pasta', category: 'Pasta', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Smoked Salmon', amount: '200g', category: 'Meat & Fish' },
+        { name: 'Tagliatelle', amount: '400g', category: 'Pantry' },
+        { name: 'Crème Fraîche', amount: '200ml', category: 'Dairy & Eggs' },
+        { name: 'Capers', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Fresh Dill', amount: 'small bunch', category: 'Produce' },
+        { name: 'Garlic', amount: '1 clove', category: 'Produce' },
+        { name: 'Parmesan', amount: '40g', category: 'Dairy & Eggs' },
+      ]},
+      { id: uid(), name: 'Teriyaki Salmon with Rice', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Salmon Fillets', amount: '4 (approx 600g)', category: 'Meat & Fish' },
         { name: 'Soy Sauce', amount: '4 tbsp', category: 'Pantry' },
-        { name: 'Noodles', amount: '300g', category: 'Pantry' },
+        { name: 'Honey', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Mirin', amount: '2 tbsp', category: 'Pantry' },
         { name: 'Garlic', amount: '2 cloves', category: 'Produce' },
-        { name: 'Ginger', amount: '1 tsp', category: 'Pantry' },
+        { name: 'Fresh Ginger', amount: '1cm piece', category: 'Produce' },
+        { name: 'Jasmine Rice', amount: '300g', category: 'Pantry' },
+        { name: 'Tenderstem Broccoli', amount: '200g', category: 'Produce' },
+        { name: 'Sesame Seeds', amount: '1 tbsp', category: 'Pantry' },
+        { name: 'Spring Onions', amount: '3', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Baked Cod with Tomatoes & Olives', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Cod Fillets', amount: '4 (approx 600g)', category: 'Meat & Fish' },
+        { name: 'Cherry Tomatoes', amount: '400g', category: 'Produce' },
+        { name: 'Black Olives', amount: '100g', category: 'Pantry' },
+        { name: 'Capers', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Garlic', amount: '3 cloves', category: 'Produce' },
+        { name: 'Fresh Basil', amount: 'small bunch', category: 'Produce' },
+        { name: 'Olive Oil', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'White Wine', amount: '100ml', category: 'Pantry' },
+        { name: 'Crusty Bread', amount: 'to serve', category: 'Bakery' },
+      ]},
+      { id: uid(), name: 'Thai-Style Prawn Noodle Soup', category: 'Soup', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Raw King Prawns', amount: '300g', category: 'Meat & Fish' },
+        { name: 'Rice Noodles', amount: '200g', category: 'Pantry' },
+        { name: 'Coconut Milk', amount: '400ml', category: 'Pantry' },
+        { name: 'Chicken or Veg Stock', amount: '700ml', category: 'Pantry' },
+        { name: 'Red Thai Curry Paste', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Pak Choi', amount: '2 heads', category: 'Produce' },
+        { name: 'Lime', amount: '2', category: 'Produce' },
+        { name: 'Fresh Coriander', amount: 'small bunch', category: 'Produce' },
+        { name: 'Fish Sauce', amount: '1 tbsp', category: 'Pantry' },
+        { name: 'Spring Onions', amount: '3', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Seared Tuna Niçoise Salad', category: 'Salad', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Fresh Tuna Steaks', amount: '4 (approx 600g)', category: 'Meat & Fish' },
+        { name: 'New Potatoes', amount: '400g', category: 'Produce' },
+        { name: 'Green Beans', amount: '200g', category: 'Produce' },
+        { name: 'Cherry Tomatoes', amount: '200g', category: 'Produce' },
+        { name: 'Eggs', amount: '4', category: 'Dairy & Eggs' },
+        { name: 'Black Olives', amount: '80g', category: 'Pantry' },
+        { name: 'Anchovy Fillets', amount: '8', category: 'Meat & Fish' },
+        { name: 'Olive Oil', amount: '4 tbsp', category: 'Pantry' },
+        { name: 'Dijon Mustard', amount: '1 tsp', category: 'Pantry' },
+        { name: 'Red Wine Vinegar', amount: '1 tbsp', category: 'Pantry' },
       ]},
     ],
     week: {},  // { Mon: { mealId, portions } }
@@ -324,6 +421,7 @@ function renderMeals() {
   grid.innerHTML = state.meals.map(m => `
     <div class="meal-card">
       <span class="category-tag">${m.category}</span>
+      ${m.source ? `<span style="font-size:0.72rem;color:var(--muted);float:right;">📖 ${m.source}</span>` : ''}
       <h3>${m.name}</h3>
       <ul class="ingredients">${m.ingredients.slice(0,5).map(i=>`<li>${i.name} — ${i.amount}</li>`).join('')}
         ${m.ingredients.length > 5 ? `<li>+${m.ingredients.length-5} more…</li>` : ''}
