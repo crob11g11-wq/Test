@@ -135,7 +135,14 @@
     <button onclick="showView('planner')">This Week</button>
     <button onclick="showView('shopping')">Shopping List</button>
   </nav>
+  <span id="sync-status" style="margin-left:1rem;font-size:0.8rem;opacity:0.85;white-space:nowrap;"></span>
 </header>
+
+<div id="setup-banner" style="display:none;background:#fff3cd;border-bottom:2px solid #ffc107;padding:0.75rem 1.5rem;font-size:0.88rem;">
+  ⚠️ <strong>Shared sync not configured.</strong> Running in local-only mode.
+  To enable real-time sharing, open <code>index.html</code>, find <code>FIREBASE_CONFIG</code> and paste in your Firebase project credentials.
+  <a href="https://console.firebase.google.com" target="_blank" style="color:#856404;font-weight:600;">Open Firebase Console →</a>
+</div>
 
 <main>
 
@@ -262,7 +269,50 @@
   </div>
 </div>
 
-<script>
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+// ── FIREBASE CONFIG ─────────────────────────────────────────────────────────
+// Paste your Firebase config here (from console.firebase.google.com)
+const FIREBASE_CONFIG = {
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
+};
+// ────────────────────────────────────────────────────────────────────────────
+
+const configured = FIREBASE_CONFIG.databaseURL !== "";
+let db = null;
+let dbRef = null;
+let _suppressSave = false;
+
+if (configured) {
+  const app = initializeApp(FIREBASE_CONFIG);
+  db = getDatabase(app);
+  dbRef = ref(db, 'mealplanner');
+  // Listen for remote changes and re-render
+  onValue(dbRef, (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      _suppressSave = true;
+      state = data;
+      _suppressSave = false;
+      const active = document.querySelector('.view.active');
+      if (active?.id === 'view-meals') renderMeals();
+      if (active?.id === 'view-planner') renderPlanner();
+      if (active?.id === 'view-shopping') renderShopping();
+    }
+  });
+  document.getElementById('sync-status').textContent = '🔴 Connecting…';
+} else {
+  document.getElementById('setup-banner').style.display = 'block';
+}
+
 // ── STATE ──
 let state = loadState();
 let editingMealId = null;
@@ -401,7 +451,16 @@ function defaultState() {
     shoppingList: [], // [{ id, name, amount, category, checked, extra }]
   };
 }
-function saveState() { localStorage.setItem('mealplanner', JSON.stringify(state)); }
+function saveState() {
+  if (_suppressSave) return;
+  localStorage.setItem('mealplanner', JSON.stringify(state));
+  if (configured && dbRef) {
+    set(dbRef, state)
+      .then(() => { document.getElementById('sync-status').textContent = '🟢 Synced'; })
+      .catch(() => { document.getElementById('sync-status').textContent = '🔴 Sync error'; });
+    document.getElementById('sync-status').textContent = '🟡 Saving…';
+  }
+}
 function uid() { return Math.random().toString(36).slice(2,10); }
 
 // ── VIEWS ──
@@ -692,6 +751,14 @@ function renderICALinks() {
     `<a href="https://www.ica.se/handla/search/?text=${encodeURIComponent(item.name)}" target="_blank" rel="noopener">🔍 ${item.name}</a>`
   ).join('');
 }
+
+// Expose functions to global scope (required for inline onclick with type="module")
+Object.assign(window, {
+  showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
+  addIngredientRow, removeIngredient,
+  openDayModal, closeDayModal, saveDayMeal, removeDay,
+  generateShoppingList, toggleItem, removeItem, clearChecked, addExtraItem,
+});
 
 // Initial render
 renderMeals();
