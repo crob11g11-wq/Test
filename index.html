@@ -309,18 +309,19 @@ if (configured) {
   onValue(dbRef, (snapshot) => {
     document.getElementById('sync-status').textContent = '🟢 Synced';
     const data = snapshot.val();
-    if (data) {
+    const hasMeals = data && Array.isArray(data.meals) && data.meals.length > 0;
+    if (hasMeals) {
       _suppressSave = true;
       state = data;
       _suppressSave = false;
-      const active = document.querySelector('.view.active');
-      if (active?.id === 'view-meals') renderMeals();
-      if (active?.id === 'view-planner') renderPlanner();
-      if (active?.id === 'view-shopping') renderShopping();
     } else {
-      // Database is empty — push the default meals up so all users see them
+      // Database empty or missing meals — seed with defaults and save
       set(dbRef, state);
     }
+    const active = document.querySelector('.view.active');
+    if (active?.id === 'view-meals') renderMeals();
+    if (active?.id === 'view-planner') renderPlanner();
+    if (active?.id === 'view-shopping') renderShopping();
   }, (error) => {
     document.getElementById('sync-status').textContent = '🔴 Connection error';
     console.error('Firebase error:', error);
