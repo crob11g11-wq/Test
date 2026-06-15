@@ -807,16 +807,20 @@ function openAllInICA() {
   const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
   if (!unchecked.length) return;
 
-  let blocked = false;
-  unchecked.forEach(item => {
-    const url = `https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`;
-    const w = window.open(url, '_blank');
-    if (!w || w.closed) blocked = true;
-  });
-
-  if (blocked) {
+  // Open first tab immediately (required to avoid popup blocker on first call)
+  const first = unchecked[0];
+  const w = window.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(first.name)}`, '_blank');
+  if (!w || w.closed) {
     alert('Your browser blocked the popups. Please click the popup-blocked icon in your address bar and choose "Always allow popups from this site", then try again.');
+    return;
   }
+
+  // Open remaining tabs with 1.5s delay between each to avoid bot detection
+  unchecked.slice(1).forEach((item, i) => {
+    setTimeout(() => {
+      window.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`, '_blank');
+    }, (i + 1) * 1500);
+  });
 }
 
 function copyListToClipboard() {
