@@ -807,20 +807,25 @@ function openAllInICA() {
   const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
   if (!unchecked.length) return;
 
-  // Open first tab immediately (required to avoid popup blocker on first call)
-  const first = unchecked[0];
-  const w = window.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(first.name)}`, '_blank');
+  const urls = unchecked.map(item =>
+    `https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`
+  );
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Opening ICA tabs…</title></head><body>
+    <p style="font-family:sans-serif;padding:2rem;">Opening ${urls.length} ICA tabs…</p>
+    <script>
+      const urls = ${JSON.stringify(urls)};
+      urls.forEach((url, i) => setTimeout(() => window.open(url, '_blank'), i * 2000));
+    <\/script>
+  </body></html>`;
+
+  const w = window.open('', '_blank');
   if (!w || w.closed) {
-    alert('Your browser blocked the popups. Please click the popup-blocked icon in your address bar and choose "Always allow popups from this site", then try again.');
+    alert('Your browser blocked the popup. Please allow popups for this site and try again.');
     return;
   }
-
-  // Open remaining items as tabs inside the new window, staggered to avoid bot detection
-  unchecked.slice(1).forEach((item, i) => {
-    setTimeout(() => {
-      w.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`, '_blank');
-    }, (i + 1) * 2000);
-  });
+  w.document.write(html);
+  w.document.close();
 }
 
 function copyListToClipboard() {
