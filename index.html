@@ -185,6 +185,7 @@
       <div class="card-header">
         <h2>Shopping List</h2>
         <div style="display:flex;gap:0.5rem;">
+          <button class="btn btn-outline btn-sm" onclick="selectAll()">Select all</button>
           <button class="btn btn-outline btn-sm" onclick="clearChecked()">Remove checked</button>
           <button class="btn btn-primary btn-sm" onclick="generateShoppingList()">Regenerate</button>
         </div>
@@ -773,6 +774,14 @@ function removeItem(id) {
   saveState();
   renderShopping();
 }
+function selectAll() {
+  const allChecked = state.shoppingList.every(i => i.checked);
+  state.shoppingList.forEach(i => i.checked = !allChecked);
+  saveState();
+  renderShopping();
+  renderICALinks();
+}
+
 function clearChecked() {
   state.shoppingList = state.shoppingList.filter(i => !i.checked);
   saveState();
@@ -828,7 +837,7 @@ Object.assign(window, {
   showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
   addIngredientRow, removeIngredient,
   addWeekMeal, removeWeekMeal, changePortions,
-  generateShoppingList, toggleItem, removeItem, clearChecked, addExtraItem, copyListToClipboard, openAllInICA,
+  generateShoppingList, toggleItem, removeItem, selectAll, clearChecked, addExtraItem, copyListToClipboard, openAllInICA,
 });
 
 // Only render immediately if Firebase is not configured (local-only mode)
