@@ -807,30 +807,16 @@ function openAllInICA() {
   const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
   if (!unchecked.length) return;
 
-  const links = unchecked.map(item => {
+  let blocked = false;
+  unchecked.forEach(item => {
     const url = `https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`;
-    const qty = item.amount ? ` <span style="color:#888;font-size:0.9em;">(${item.amount})</span>` : '';
-    return `<li><a href="${url}" target="_blank" style="color:#e63946;font-weight:600;text-decoration:none;font-size:1.05em;">${item.name}</a>${qty}</li>`;
-  }).join('');
+    const w = window.open(url, '_blank');
+    if (!w || w.closed) blocked = true;
+  });
 
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-    <title>Shopping List — ICA Liljeholmen</title>
-    <style>
-      body { font-family: -apple-system, sans-serif; max-width: 500px; margin: 2rem auto; padding: 1rem; }
-      h2 { color: #e63946; margin-bottom: 1rem; }
-      ul { list-style: none; padding: 0; }
-      li { padding: 0.65rem 0; border-bottom: 1px solid #eee; }
-      li a:hover { text-decoration: underline; }
-      p { color: #888; font-size: 0.85rem; margin-bottom: 1.5rem; }
-    </style></head><body>
-    <h2>🛒 Shopping List — ICA Liljeholmen</h2>
-    <p>Click each item to search for it in ICA Liljeholmen. Opens in a new tab.</p>
-    <ul>${links}</ul>
-  </body></html>`;
-
-  const blob = new Blob([html], { type: 'text/html' });
-  const url = URL.createObjectURL(blob);
-  window.open(url, '_blank');
+  if (blocked) {
+    alert('Your browser blocked the popups. Please click the popup-blocked icon in your address bar and choose "Always allow popups from this site", then try again.');
+  }
 }
 
 function copyListToClipboard() {
