@@ -300,6 +300,7 @@ if (configured) {
     if (data) {
       // Firebase converts arrays to objects — convert them back
       if (data.meals && !Array.isArray(data.meals)) data.meals = Object.values(data.meals);
+      if (data.week && !Array.isArray(data.week)) data.week = Object.values(data.week);
       if (data.shoppingList && !Array.isArray(data.shoppingList)) data.shoppingList = Object.values(data.shoppingList);
       if (data.meals) data.meals.forEach(m => { if (m.ingredients && !Array.isArray(m.ingredients)) m.ingredients = Object.values(m.ingredients); });
       _suppressSave = true;
