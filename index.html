@@ -770,8 +770,9 @@ async function translateShoppingListToSwedish() {
     try {
       const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(item.name)}&langpair=en|sv`);
       const data = await res.json();
+      if (data?.responseStatus === 429) break; // quota exceeded — stop trying
       const sv = data?.responseData?.translatedText;
-      if (sv && sv !== item.name) item.nameSv = sv;
+      if (sv && sv !== item.name && !sv.toLowerCase().includes('mymemory')) item.nameSv = sv;
     } catch (_) {}
   }
   saveState();
