@@ -201,16 +201,48 @@
     <div class="card">
       <div class="card-header"><h2>ICA Liljeholmen</h2></div>
       <div class="card-body">
-        <div class="ica-export">
-          <p style="margin-bottom:1rem;">Copy your full shopping list and paste it directly into the ICA app or website shopping list. Or search individual items below.</p>
-          <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1.25rem;">
-            <button class="btn btn-success" onclick="copyListToClipboard()" id="copy-btn">📋 Copy full list to clipboard</button>
-            <a href="https://handlaprivatkund.ica.se/stores/1003417" target="_blank" rel="noopener" class="btn btn-outline">🏪 Open ICA Liljeholmen</a>
-          </div>
-          <div id="copy-confirm" style="display:none;color:var(--success);font-size:0.85rem;margin-bottom:0.75rem;">✓ Copied! Paste into ICA's shopping list.</div>
-          <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem;">Or search individual items:</p>
-          <div class="ica-links" id="ica-links"></div>
+
+        <!-- Not configured -->
+        <div id="ica-proxy-missing" style="display:none;background:#fff3cd;border:1.5px solid #ffc107;border-radius:8px;padding:0.85rem 1rem;font-size:0.88rem;margin-bottom:1rem;">
+          ⚠️ <strong>ICA proxy not set up yet.</strong> See setup instructions below to enable one-click sync.
         </div>
+
+        <!-- Logged out state -->
+        <div id="ica-login-section">
+          <p style="font-size:0.88rem;color:var(--muted);margin-bottom:0.85rem;">Sign in with your ICA account to push your shopping list directly to ICA. Your password is used once to get a session token and is never stored.</p>
+          <div class="form-row cols-2" style="margin-bottom:0.75rem;">
+            <div class="form-group" style="margin:0;">
+              <label>ICA Email</label>
+              <input id="ica-email" type="email" placeholder="your@email.com" />
+            </div>
+            <div class="form-group" style="margin:0;">
+              <label>ICA Password</label>
+              <input id="ica-password" type="password" placeholder="••••••••" />
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="icaLogin()">Connect to ICA</button>
+          <div id="ica-login-error" style="display:none;color:#c1121f;font-size:0.85rem;margin-top:0.5rem;"></div>
+        </div>
+
+        <!-- Logged in state -->
+        <div id="ica-synced-section" style="display:none;">
+          <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
+            <span id="ica-greeting" style="font-size:0.95rem;font-weight:600;"></span>
+            <button class="btn btn-success" onclick="syncToICA()">📤 Send list to ICA</button>
+            <button class="btn btn-outline btn-sm" onclick="icaLogout()">Disconnect</button>
+          </div>
+          <div id="ica-sync-status" style="font-size:0.85rem;margin-top:0.6rem;"></div>
+        </div>
+
+        <hr style="border:none;border-top:1px solid var(--border);margin:1.25rem 0;" />
+
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <button class="btn btn-outline" onclick="copyListToClipboard()">📋 Copy list to clipboard</button>
+          <a href="https://handlaprivatkund.ica.se/stores/1003417" target="_blank" rel="noopener" class="btn btn-outline">🏪 Open ICA Liljeholmen</a>
+        </div>
+        <div id="copy-confirm" style="display:none;color:var(--success);font-size:0.85rem;margin-bottom:0.75rem;">✓ Copied! Paste into ICA's shopping list.</div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem;">Search individual items:</p>
+        <div class="ica-links" id="ica-links"></div>
       </div>
     </div>
   </div>
@@ -266,6 +298,12 @@
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+// ── ICA PROXY URL ────────────────────────────────────────────────────────────
+// Paste your Cloudflare Worker URL here after deploying ica-proxy/worker.js
+// e.g. "https://ica-proxy.yourname.workers.dev"
+const ICA_PROXY_URL = "";
+// ─────────────────────────────────────────────────────────────────────────────
 
 // ── FIREBASE CONFIG ─────────────────────────────────────────────────────────
 // Paste your Firebase config here (from console.firebase.google.com)
@@ -780,16 +818,112 @@ function renderICALinks() {
   ).join('');
 }
 
+// ── ICA INTEGRATION ──
+let icaTicket = null;
+
+function icaProxyUrl(path) {
+  return (ICA_PROXY_URL.replace(/\/$/, '')) + path;
+}
+
+function renderICALoginState() {
+  const hasProxy = ICA_PROXY_URL !== "";
+  document.getElementById('ica-proxy-missing').style.display = hasProxy ? 'none' : 'block';
+  document.getElementById('ica-login-section').style.display = (!hasProxy || icaTicket) ? 'none' : 'block';
+  document.getElementById('ica-synced-section').style.display = icaTicket ? 'block' : 'none';
+}
+
+async function icaLogin() {
+  if (!ICA_PROXY_URL) { renderICALoginState(); return; }
+  const email = document.getElementById('ica-email').value.trim();
+  const password = document.getElementById('ica-password').value;
+  const errEl = document.getElementById('ica-login-error');
+  errEl.style.display = 'none';
+  if (!email || !password) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; return; }
+
+  const creds = btoa(`${email}:${password}`);
+  try {
+    const res = await fetch(icaProxyUrl('/api/login'), {
+      headers: { 'Authorization': `Basic ${creds}` },
+    });
+    if (!res.ok) throw new Error('Invalid credentials');
+    const ticket = res.headers.get('AuthenticationTicket');
+    const data = await res.json();
+    if (!ticket) throw new Error('No ticket received');
+    icaTicket = ticket;
+    document.getElementById('ica-greeting').textContent = `Connected as ${data.FirstName} ${data.LastName}`;
+    document.getElementById('ica-password').value = '';
+    renderICALoginState();
+  } catch (e) {
+    errEl.textContent = e.message === 'Invalid credentials' ? 'Wrong email or password.' : 'Could not connect. Check your proxy URL is set up.';
+    errEl.style.display = 'block';
+  }
+}
+
+function icaLogout() {
+  icaTicket = null;
+  document.getElementById('ica-email').value = '';
+  renderICALoginState();
+}
+
+async function syncToICA() {
+  if (!icaTicket) return;
+  const statusEl = document.getElementById('ica-sync-status');
+  statusEl.textContent = '⏳ Sending to ICA…';
+
+  const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
+  if (!unchecked.length) { statusEl.textContent = '⚠️ No items to sync — generate your shopping list first.'; return; }
+
+  const offlineId = 'mealplanner-' + Date.now();
+  const today = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+  const rows = unchecked.map((item, i) => ({
+    RowId: i + 1,
+    ProductName: item.amount ? `${item.name} (${item.amount})` : item.name,
+    Quantity: 1,
+    Unit: '',
+    SourceId: -1,
+    IsStrikedOver: false,
+    InternalOrder: i + 1,
+  }));
+
+  try {
+    const res = await fetch(icaProxyUrl('/api/user/offlineshoppinglists'), {
+      method: 'POST',
+      headers: {
+        'AuthenticationTicket': icaTicket,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        OfflineId: offlineId,
+        Title: `Meal Planner – ${today}`,
+        CommentText: '',
+        Rows: rows,
+      }),
+    });
+    if (!res.ok) throw new Error(`ICA error ${res.status}`);
+    statusEl.textContent = `✅ ${unchecked.length} items sent to ICA! Check your ICA app shopping list.`;
+  } catch (e) {
+    if (e.message.includes('401') || e.message.includes('403')) {
+      icaTicket = null;
+      renderICALoginState();
+      statusEl.textContent = '🔒 Session expired — please reconnect.';
+    } else {
+      statusEl.textContent = `❌ Failed: ${e.message}`;
+    }
+  }
+}
+
 // Expose functions to global scope (required for inline onclick with type="module")
 Object.assign(window, {
   showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
   addIngredientRow, removeIngredient,
   addWeekMeal, removeWeekMeal, changePortions,
   generateShoppingList, toggleItem, removeItem, clearChecked, addExtraItem, copyListToClipboard,
+  icaLogin, icaLogout, syncToICA,
 });
 
 // Only render immediately if Firebase is not configured (local-only mode)
 if (!configured) renderMeals();
+renderICALoginState();
 </script>
 </body>
 </html>
