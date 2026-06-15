@@ -550,9 +550,9 @@ async function importFromUrl() {
   status.textContent = '⏳ Fetching recipe…';
   status.style.color = 'var(--muted)';
   try {
-    const proxyRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
-    const proxyData = await proxyRes.json();
-    const html = proxyData.contents;
+    const proxyRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+    if (!proxyRes.ok) throw new Error(`HTTP ${proxyRes.status}`);
+    const html = await proxyRes.text();
     const matches = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
     let recipe = null;
     for (const m of matches) {
