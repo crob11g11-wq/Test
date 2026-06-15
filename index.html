@@ -807,7 +807,7 @@ function openAllInICA() {
   if (!unchecked.length) return;
 
   const links = unchecked.map(item => {
-    const url = `https://handlaprivatkund.ica.se/stores/1003417/search?text=${encodeURIComponent(item.name)}`;
+    const url = `https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`;
     const qty = item.amount ? ` <span style="color:#888;font-size:0.9em;">(${item.amount})</span>` : '';
     return `<li><a href="${url}" target="_blank" style="color:#e63946;font-weight:600;text-decoration:none;font-size:1.05em;">${item.name}</a>${qty}</li>`;
   }).join('');
@@ -845,7 +845,7 @@ function copyListToClipboard() {
 function renderICALinks() {
   const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
   document.getElementById('ica-links').innerHTML = unchecked.map(item =>
-    `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?text=${encodeURIComponent(item.name)}" target="_blank" rel="noopener">
+    `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}" target="_blank" rel="noopener">
       <span>${item.name}${item.amount ? ` <span style="color:var(--muted);font-size:0.82rem;">${item.amount}</span>` : ''}</span>
     </a>`
   ).join('');
