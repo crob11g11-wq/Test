@@ -661,6 +661,9 @@ label {
   <button class="bottom-nav-btn" onclick="showView('shopping')">
     <span class="bnav-icon">🛒</span><span class="bnav-label">Shop</span>
   </button>
+  <button class="bottom-nav-btn" onclick="showView('settings')">
+    <span class="bnav-icon">⚙️</span><span class="bnav-label">Settings</span>
+  </button>
 </nav>
 
 <!-- ── ADD/EDIT MEAL MODAL ── -->
@@ -955,7 +958,7 @@ function showView(v) {
     b.classList.toggle('active', ['meals','planner','shopping'][i] === v);
   });
   document.querySelectorAll('.bottom-nav-btn').forEach((b,i) => {
-    b.classList.toggle('active', ['meals','planner','shopping'][i] === v);
+    b.classList.toggle('active', ['meals','planner','shopping','settings'][i] === v);
   });
   document.getElementById('view-' + v).classList.add('active');
   if (v === 'meals') renderMeals();
