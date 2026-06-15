@@ -675,6 +675,22 @@ function generateShoppingList() {
   }).concat(extras);
   saveState();
   renderShopping();
+  translateShoppingListToSwedish();
+}
+
+async function translateShoppingListToSwedish() {
+  const items = toArr(state.shoppingList);
+  for (const item of items) {
+    if (item.nameSv) continue;
+    try {
+      const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(item.name)}&langpair=en|sv`);
+      const data = await res.json();
+      const sv = data?.responseData?.translatedText;
+      if (sv && sv !== item.name) item.nameSv = sv;
+    } catch (_) {}
+  }
+  saveState();
+  renderICALinks();
 }
 
 function summariseAmounts(rawAmounts) {
@@ -769,7 +785,7 @@ function openAllInICA() {
 
   let blocked = false;
   unchecked.forEach(item => {
-    const url = `https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`;
+    const url = `https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.nameSv || item.name)}`;
     const w = window.open(url, '_blank');
     if (!w || w.closed) blocked = true;
   });
@@ -792,7 +808,7 @@ function copyListToClipboard() {
 function renderICALinks() {
   const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
   document.getElementById('ica-links').innerHTML = unchecked.map(item =>
-    `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}" target="_blank" rel="noopener noreferrer">
+    `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.nameSv || item.name)}" target="_blank" rel="noopener noreferrer">
       <span>${item.name}${item.amount ? ` <span style="color:var(--muted);font-size:0.82rem;">${item.amount}</span>` : ''}</span>
     </a>`
   ).join('');
