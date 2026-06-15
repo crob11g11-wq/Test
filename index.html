@@ -310,7 +310,15 @@ if (configured) {
       if (data.shoppingList && !Array.isArray(data.shoppingList)) data.shoppingList = Object.values(data.shoppingList);
       if (data.meals) data.meals.forEach(m => { if (m.ingredients && !Array.isArray(m.ingredients)) m.ingredients = Object.values(m.ingredients); });
       _suppressSave = true;
+      // Preserve nameSv translations that aren't stored in Firebase
+      const prevList = toArr(state.shoppingList);
       state = data;
+      if (state.shoppingList) {
+        toArr(state.shoppingList).forEach(item => {
+          const prev = prevList.find(p => p.id === item.id);
+          if (prev?.nameSv) item.nameSv = prev.nameSv;
+        });
+      }
       _suppressSave = false;
     }
     // Always re-render all views when Firebase data arrives
