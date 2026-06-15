@@ -5,140 +5,557 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Weekly Meal Planner</title>
   <style>
-    :root {
-      --bg: #f7f5f0;
-      --surface: #ffffff;
-      --primary: #e63946;
-      --primary-dark: #c1121f;
-      --text: #1d3557;
-      --muted: #6c757d;
-      --border: #dee2e6;
-      --success: #2a9d8f;
-      --tag-bg: #f1faee;
-      --shadow: 0 2px 8px rgba(0,0,0,0.08);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
-    header { background: var(--primary); color: white; padding: 1rem 1.5rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-    header h1 { font-size: 1.4rem; font-weight: 700; }
-    header nav { margin-left: auto; display: flex; gap: 0.5rem; }
-    header nav button { background: rgba(255,255,255,0.2); border: none; color: white; padding: 0.4rem 0.9rem; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: background 0.2s; }
-    header nav button:hover, header nav button.active { background: rgba(255,255,255,0.35); }
+:root {
+  --bg: #faf9f7;
+  --surface: #ffffff;
+  --primary: #e8445a;
+  --primary-dark: #c9364a;
+  --text: #1a1a2e;
+  --muted: #8b8fa8;
+  --border: #ebe9e4;
+  --success: #52b788;
+  --tag-bg: #f0fdf4;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
 
-    main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
 
-    .card { background: var(--surface); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 1.5rem; overflow: hidden; }
-    .card-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-    .card-header h2 { font-size: 1.05rem; font-weight: 600; }
-    .card-body { padding: 1.25rem; }
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #e8445a 0%, #c9364a 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 20px rgba(232,68,90,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+header nav { margin-left: auto; display: flex; gap: 0.4rem; }
+header nav button {
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 0.45rem 1rem;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+header nav button:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); }
+header nav button.active { background: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.6); font-weight: 600; }
 
-    /* BUTTONS */
-    .btn { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.45rem 1rem; border-radius: 8px; border: none; cursor: pointer; font-size: 0.88rem; font-weight: 500; transition: all 0.15s; }
-    .btn-primary { background: var(--primary); color: white; }
-    .btn-primary:hover { background: var(--primary-dark); }
-    .btn-success { background: var(--success); color: white; }
-    .btn-success:hover { background: #21867a; }
-    .btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
-    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
-    .btn-sm { padding: 0.3rem 0.65rem; font-size: 0.8rem; }
-    .btn-danger { background: transparent; color: #c1121f; border: 1.5px solid #f5c2c7; }
-    .btn-danger:hover { background: #f5c2c7; }
-    .btn-icon { padding: 0.3rem; border-radius: 6px; background: transparent; border: none; cursor: pointer; color: var(--muted); font-size: 1rem; line-height: 1; transition: color 0.15s; }
-    .btn-icon:hover { color: var(--primary); }
+#sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
 
-    /* FORMS */
-    input, select, textarea { width: 100%; padding: 0.5rem 0.75rem; border: 1.5px solid var(--border); border-radius: 8px; font-size: 0.9rem; outline: none; background: white; color: var(--text); transition: border-color 0.15s; }
-    input:focus, select:focus, textarea:focus { border-color: var(--primary); }
-    label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--muted); margin-bottom: 0.3rem; text-transform: uppercase; letter-spacing: 0.04em; }
-    .form-group { margin-bottom: 0.9rem; }
-    .form-row { display: grid; gap: 0.75rem; }
-    .form-row.cols-2 { grid-template-columns: 1fr 1fr; }
-    .form-row.cols-3 { grid-template-columns: 1fr 1fr auto; }
+/* ── SETUP BANNER ── */
+#setup-banner {
+  background: #fffbeb;
+  border-bottom: 2px solid #f59e0b;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.85rem;
+  color: #92400e;
+}
 
-    /* MEAL LIBRARY */
-    .meal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-    .meal-card { border: 1.5px solid var(--border); border-radius: 10px; padding: 1rem; position: relative; transition: box-shadow 0.15s; }
-    .meal-card:hover { box-shadow: var(--shadow); }
-    .meal-card h3 { font-size: 0.95rem; font-weight: 600; margin-bottom: 0.4rem; }
-    .meal-card .category-tag { display: inline-block; background: var(--tag-bg); color: var(--success); font-size: 0.75rem; padding: 0.15rem 0.5rem; border-radius: 20px; margin-bottom: 0.6rem; border: 1px solid #a8dadc; }
-    .meal-card .ingredients { list-style: none; font-size: 0.82rem; color: var(--muted); }
-    .meal-card .ingredients li::before { content: '· '; }
-    .meal-card .actions { display: flex; gap: 0.4rem; margin-top: 0.75rem; }
+/* ── MAIN CONTENT ── */
+main { max-width: 960px; margin: 0 auto; padding: 1.5rem; padding-bottom: 6rem; }
 
-    /* WEEK LIST */
-    .week-list { display: flex; flex-direction: column; gap: 0.6rem; }
-    .week-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 10px; background: white; }
-    .week-item .meal-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
-    .week-item .meal-cat { font-size: 0.75rem; color: var(--muted); }
-    .week-item .portions-ctrl { display: flex; align-items: center; gap: 0.4rem; }
-    .week-item .portions-ctrl button { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: white; cursor: pointer; font-size: 1rem; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-    .week-item .portions-ctrl button:hover { border-color: var(--primary); color: var(--primary); }
-    .week-item .portions-ctrl span { min-width: 2rem; text-align: center; font-weight: 600; font-size: 0.9rem; }
-    .week-item .remove-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.1rem; padding: 0 0.2rem; transition: color 0.15s; }
-    .week-item .remove-btn:hover { color: var(--primary); }
-    .add-meal-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
-    .add-meal-row select { flex: 1; }
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(235,233,228,0.5);
+}
+.card-header {
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+}
+.card-header h2 { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+.card-body { padding: 1.25rem 1.4rem; }
 
-    /* SHOPPING LIST */
-    .shop-category { margin-bottom: 1.2rem; }
-    .shop-category h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 0.5rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
-    .shop-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0; border-bottom: 1px solid #f0f0f0; }
-    .shop-item:last-child { border-bottom: none; }
-    .shop-item input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--primary); flex-shrink: 0; }
-    .shop-item label { flex: 1; cursor: pointer; font-size: 0.9rem; margin: 0; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--text); }
-    .shop-item.checked label { text-decoration: line-through; color: var(--muted); }
-    .shop-item .qty { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
-    .shop-item .remove-item { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 0.85rem; padding: 0 0.2rem; }
-    .shop-item .remove-item:hover { color: var(--primary); }
-    .add-item-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
-    .add-item-row input { flex: 1; }
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 10px rgba(232,68,90,0.3); }
+.btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 14px rgba(232,68,90,0.4); transform: translateY(-1px); }
+.btn-success { background: var(--success); color: white; box-shadow: 0 2px 10px rgba(82,183,136,0.3); }
+.btn-success:hover { background: #3da873; transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); background: rgba(232,68,90,0.04); }
+.btn-sm { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+.btn-danger { background: transparent; color: #c9364a; border: 1.5px solid #fecdd3; }
+.btn-danger:hover { background: #fef2f2; border-color: #fca5a5; }
+.btn-icon {
+  padding: 0.3rem;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.btn-icon:hover { color: var(--primary); background: rgba(232,68,90,0.08); }
 
-    /* MODAL */
-    .modal-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
-    .modal-backdrop.open { display: flex; }
-    .modal { background: white; border-radius: 14px; padding: 1.5rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; }
-    .modal h2 { font-size: 1.15rem; margin-bottom: 1.1rem; }
-    .modal-footer { display: flex; gap: 0.5rem; justify-content: flex-end; margin-top: 1.2rem; }
+/* ── FORMS ── */
+input, select, textarea {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  outline: none;
+  background: white;
+  color: var(--text);
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(232,68,90,0.1);
+}
+label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.form-group { margin-bottom: 1rem; }
+.form-row { display: grid; gap: 0.75rem; }
+.form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+.form-row.cols-3 { grid-template-columns: 1fr 1fr auto; }
 
-    /* INGREDIENT BUILDER */
-    .ingredient-list { list-style: none; margin-bottom: 0.75rem; }
-    .ingredient-list li { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0; font-size: 0.88rem; }
-    .ingredient-list li span { flex: 1; }
+/* ── MEAL GRID ── */
+.meal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.1rem; }
 
-    /* ICA EXPORT */
-    .ica-export { background: #f1faee; border: 1.5px solid #a8dadc; border-radius: 10px; padding: 1rem; }
-    .ica-export p { font-size: 0.88rem; color: var(--muted); margin-bottom: 0.75rem; }
-    .ica-links { display: flex; flex-direction: column; gap: 0.4rem; }
-    .ica-links a { display: flex; align-items: center; justify-content: space-between; background: #f8f8f8; border: 1.5px solid var(--border); color: var(--text); padding: 0.6rem 1rem; border-radius: 8px; font-size: 0.9rem; text-decoration: none; transition: all 0.15s; }
-    .ica-links a:hover { border-color: var(--primary); background: #fff5f5; color: var(--primary); }
-    .ica-links a::after { content: '→'; color: var(--muted); font-size: 0.85rem; }
+.meal-card {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--category-color, var(--primary));
+  border-radius: var(--radius-sm);
+  padding: 1.1rem;
+  position: relative;
+  transition: box-shadow 0.2s, transform 0.2s;
+  background: white;
+}
+.meal-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
 
-    .empty-state { text-align: center; color: var(--muted); padding: 2.5rem 1rem; font-size: 0.92rem; }
-    .empty-state .icon { font-size: 2.5rem; margin-bottom: 0.6rem; }
+.meal-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem; }
+.meal-card h3 { font-size: 0.95rem; font-weight: 700; line-height: 1.3; color: var(--text); }
+.meal-card .source-badge { font-size: 0.7rem; color: var(--muted); white-space: nowrap; display: flex; align-items: center; gap: 0.2rem; }
 
-    .view { display: none; }
-    .view.active { display: block; }
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--tag-bg);
+  color: var(--success);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  margin-bottom: 0.6rem;
+  border: 1px solid rgba(82,183,136,0.25);
+}
 
-    .summary-bar { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .summary-bar .chip { background: var(--tag-bg); border: 1px solid #a8dadc; color: var(--text); border-radius: 20px; padding: 0.3rem 0.85rem; font-size: 0.82rem; }
+.meal-card .ingredient-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  margin-left: 0.4rem;
+}
 
-    @media (max-width: 600px) {
-      .week-grid { grid-template-columns: repeat(4, 1fr); }
-      .form-row.cols-2, .form-row.cols-3 { grid-template-columns: 1fr; }
-    }
+.meal-card .ingredients { list-style: none; font-size: 0.82rem; color: var(--muted); margin: 0.5rem 0; }
+.meal-card .ingredients li { padding: 0.08rem 0; display: flex; align-items: center; gap: 0.4rem; }
+.meal-card .ingredients li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.meal-card .portions-info { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px solid var(--border); }
+.meal-card .actions { display: flex; gap: 0.4rem; margin-top: 0.75rem; }
+
+/* ── WEEK LIST ── */
+.week-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.week-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--category-color, var(--primary));
+  border-radius: var(--radius-sm);
+  background: white;
+  transition: box-shadow 0.15s;
+}
+.week-item:hover { box-shadow: var(--shadow-sm); }
+.week-item .meal-name { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+.week-item .meal-cat {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+.week-item .meal-cat::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--category-color, var(--muted));
+  display: inline-block;
+}
+.week-item .portions-ctrl { display: flex; align-items: center; gap: 0.5rem; }
+.week-item .portions-ctrl button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  color: var(--text);
+  font-family: inherit;
+}
+.week-item .portions-ctrl button:hover { border-color: var(--primary); color: var(--primary); background: rgba(232,68,90,0.05); }
+.week-item .portions-ctrl span {
+  min-width: 5rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--bg);
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+}
+.week-item .remove-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.1rem; padding: 0.2rem; transition: color 0.15s; border-radius: 6px; }
+.week-item .remove-btn:hover { color: var(--primary); background: rgba(232,68,90,0.08); }
+.add-meal-row { display: flex; gap: 0.6rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.add-meal-row select { flex: 1; }
+
+/* ── SHOPPING LIST ── */
+.shop-category { margin-bottom: 1.5rem; }
+.shop-category h3 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: white;
+  background: var(--muted);
+  margin-bottom: 0.6rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid #f5f4f0;
+  transition: all 0.2s;
+}
+.shop-item:last-child { border-bottom: none; }
+
+/* Custom checkbox */
+.shop-item input[type=checkbox] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+  background: white;
+}
+.shop-item input[type=checkbox]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.shop-item input[type=checkbox]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.shop-item input[type=checkbox]:hover:not(:checked) { border-color: var(--primary); }
+
+.shop-item label {
+  flex: 1;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin: 0;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--text);
+  transition: all 0.2s;
+}
+.shop-item.checked { opacity: 0.5; }
+.shop-item.checked label { text-decoration: line-through; color: var(--muted); }
+.shop-item .qty {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  background: var(--bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.shop-item .remove-item {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.shop-item .remove-item:hover { color: var(--primary); background: rgba(232,68,90,0.08); }
+
+.add-item-row { display: flex; gap: 0.6rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.add-item-row input { flex: 1; }
+
+/* ── SUMMARY BAR ── */
+.summary-bar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.summary-bar .chip {
+  background: white;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  border-radius: 20px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── ICA SECTION ── */
+.ica-export {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid #86efac;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+}
+.ica-export p { font-size: 0.85rem; color: #166534; margin-bottom: 0.75rem; }
+.ica-links { display: flex; flex-direction: column; gap: 0.4rem; }
+.ica-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border: 1.5px solid #bbf7d0;
+  color: var(--text);
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.ica-links a:hover { border-color: #4ade80; background: #f0fdf4; transform: translateX(2px); }
+.ica-links a::after { content: '→'; color: #52b788; font-size: 0.85rem; font-weight: 700; }
+
+/* The ICA card header - give it green teal treatment */
+#view-shopping .card:last-child .card-header h2 { color: #166534; }
+#view-shopping .card:last-child { border: 1.5px solid #86efac; background: linear-gradient(to bottom, #f0fdf4, #ffffff); }
+
+/* ── MODAL ── */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26,26,46,0.5);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 20px;
+  padding: 1.75rem;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--text); letter-spacing: -0.02em; }
+.modal-footer { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.modal hr { border: none; border-top: 1px solid var(--border); margin: 0.75rem 0 1.1rem; }
+
+/* ── INGREDIENT LIST ── */
+.ingredient-list { list-style: none; margin-bottom: 0.75rem; }
+.ingredient-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.ingredient-list li:hover { background: var(--bg); }
+.ingredient-list li span { flex: 1; }
+
+/* ── EMPTY STATES ── */
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  padding: 3rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.empty-state .icon { font-size: 3.5rem; margin-bottom: 1rem; display: block; line-height: 1; }
+
+/* ── VIEWS & TRANSITIONS ── */
+.view { display: none; opacity: 0; transition: opacity 0.2s; }
+.view.active { display: block; animation: fadeIn 0.2s ease forwards; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── BOTTOM NAV (MOBILE) ── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  z-index: 50;
+  padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
+}
+.bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: inherit;
+  transition: color 0.2s;
+}
+.bottom-nav-btn:hover { color: var(--primary); }
+.bottom-nav-btn.active { color: var(--primary); }
+.bottom-nav-btn.active .bnav-icon { transform: scale(1.1); display: inline-block; }
+.bnav-icon { font-size: 1.4rem; line-height: 1; }
+.bnav-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.03em; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  header nav { display: none; }
+  #sync-status { display: none; }
+  .bottom-nav { display: flex; }
+  main { padding: 1rem; padding-bottom: 5.5rem; }
+  .form-row.cols-2, .form-row.cols-3 { grid-template-columns: 1fr; }
+  .meal-grid { grid-template-columns: 1fr; }
+  header { padding: 0.85rem 1rem; }
+  header h1 { font-size: 1.2rem; }
+}
+
+@media (min-width: 641px) {
+  .bottom-nav { display: none !important; }
+}
   </style>
 </head>
 <body>
 
 <header>
-  <h1>🛒 Meal Planner</h1>
+  <h1>🍽️ Meal Planner</h1>
   <nav>
     <button class="active" onclick="showView('meals')">Meals</button>
     <button onclick="showView('planner')">This Week</button>
     <button onclick="showView('shopping')">Shopping List</button>
   </nav>
-  <span id="sync-status" style="margin-left:1rem;font-size:0.8rem;opacity:0.85;white-space:nowrap;"></span>
+  <span id="sync-status"></span>
 </header>
 
 <div id="setup-banner" style="display:none;background:#fff3cd;border-bottom:2px solid #ffc107;padding:0.75rem 1.5rem;font-size:0.88rem;">
@@ -200,8 +617,8 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header"><h2>ICA Liljeholmen</h2></div>
+    <div class="card ica-card">
+      <div class="card-header"><h2>🛒 ICA Liljeholmen</h2></div>
       <div class="card-body">
         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
           <button class="btn btn-primary" onclick="openAllInICA()">🛒 Open all in ICA</button>
@@ -214,6 +631,18 @@
   </div>
 
 </main>
+
+<nav class="bottom-nav">
+  <button class="bottom-nav-btn" onclick="showView('meals')">
+    <span class="bnav-icon">🥘</span><span class="bnav-label">Meals</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showView('planner')">
+    <span class="bnav-icon">📅</span><span class="bnav-label">Week</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showView('shopping')">
+    <span class="bnav-icon">🛒</span><span class="bnav-label">Shop</span>
+  </button>
+</nav>
 
 <!-- ── ADD/EDIT MEAL MODAL ── -->
 <div class="modal-backdrop" id="meal-modal">
@@ -495,34 +924,55 @@ function showView(v) {
   document.querySelectorAll('header nav button').forEach((b,i) => {
     b.classList.toggle('active', ['meals','planner','shopping'][i] === v);
   });
+  document.querySelectorAll('.bottom-nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['meals','planner','shopping'][i] === v);
+  });
   document.getElementById('view-' + v).classList.add('active');
   if (v === 'meals') renderMeals();
   if (v === 'planner') renderPlanner();
   if (v === 'shopping') renderShopping();
 }
 
+// ── CATEGORY COLORS ──
+const CAT_COLORS = {
+  'Pasta': '#f59f00', 'Fish & Seafood': '#339af0', 'Vegetarian': '#51cf66',
+  'Chicken': '#ff922b', 'Beef': '#e03131', 'Soup': '#cc5de8',
+  'Salad': '#20c997', 'Curry': '#f76707', 'Pizza': '#e64980', 'Other': '#868e96',
+};
+function catColor(cat) { return CAT_COLORS[cat] || '#868e96'; }
+
 // ── MEALS ──
 function renderMeals() {
   const grid = document.getElementById('meal-grid');
   if (!state.meals.length) {
-    grid.innerHTML = '<div class="empty-state"><div class="icon">🍽️</div>No meals yet. Add your first meal!</div>';
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🍽️</div><strong>No meals yet</strong>Add your first meal to get started!</div>`;
     return;
   }
-  grid.innerHTML = state.meals.map(m => `
-    <div class="meal-card">
-      <span class="category-tag">${m.category}</span>
-      ${m.source ? `<span style="font-size:0.72rem;color:var(--muted);float:right;">📖 ${m.source}</span>` : ''}
+  grid.innerHTML = state.meals.map(m => {
+    const color = catColor(m.category);
+    const ingCount = m.ingredients.length;
+    return `
+    <div class="meal-card" style="--category-color:${color};border-left:4px solid ${color}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.4rem;">
+        <span class="category-tag">${m.category}</span>
+        ${m.source ? `<span style="font-size:0.7rem;color:var(--muted);">📖 ${m.source}</span>` : ''}
+      </div>
       <h3>${m.name}</h3>
-      <ul class="ingredients">${m.ingredients.slice(0,5).map(i=>`<li>${i.name} — ${i.amount}</li>`).join('')}
-        ${m.ingredients.length > 5 ? `<li>+${m.ingredients.length-5} more…</li>` : ''}
+      <ul class="ingredients">${m.ingredients.slice(0,4).map(i=>`<li>${i.name} <span style="color:var(--muted);font-weight:400">— ${i.amount}</span></li>`).join('')}
+        ${m.ingredients.length > 4 ? `<li style="color:var(--muted);font-style:italic">+${m.ingredients.length-4} more…</li>` : ''}
       </ul>
-      <div style="font-size:0.78rem;color:var(--muted);margin-top:0.4rem;">Base: ${m.portions} portions</div>
-      <div class="actions">
-        <button class="btn btn-outline btn-sm" onclick="openMealModal('${m.id}')">Edit</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteMeal('${m.id}')">Delete</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.75rem;padding-top:0.65rem;border-top:1px solid var(--border);gap:0.5rem;">
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.7rem;font-weight:500;background:#f5f5f8;padding:0.18rem 0.5rem;border-radius:6px;color:var(--muted);">🧑‍🍳 ${m.portions} portions</span>
+          <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.7rem;font-weight:500;background:#f5f5f8;padding:0.18rem 0.5rem;border-radius:6px;color:var(--muted);">🥕 ${ingCount} ingredient${ingCount !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="actions">
+          <button class="btn btn-outline btn-sm" onclick="openMealModal('${m.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMeal('${m.id}')">Delete</button>
+        </div>
       </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function openMealModal(id) {
@@ -693,13 +1143,15 @@ function renderPlanner() {
   if (!Array.isArray(state.week)) state.week = [];
   const list = document.getElementById('week-list');
   if (!state.week.length) {
-    list.innerHTML = '<div class="empty-state"><div class="icon">📅</div>No meals added yet. Pick from the dropdown below.</div>';
+    list.innerHTML = `<div class="empty-state"><div class="icon">📅</div><strong>No meals planned yet</strong>Pick from the dropdown below to start building your week.</div>`;
   } else {
     list.innerHTML = state.week.map((entry, i) => {
       const meal = state.meals.find(m => m.id === entry.mealId);
       if (!meal) return '';
+      const color = catColor(meal.category);
       return `
-        <div class="week-item">
+        <div class="week-item" style="--category-color:${color}">
+          <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></div>
           <div style="flex:1">
             <div class="meal-name">${meal.name}</div>
             <div class="meal-cat">${meal.category}</div>
