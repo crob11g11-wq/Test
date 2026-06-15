@@ -66,17 +66,19 @@
     .meal-card .ingredients li::before { content: '· '; }
     .meal-card .actions { display: flex; gap: 0.4rem; margin-top: 0.75rem; }
 
-    /* WEEK PLANNER */
-    .week-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; }
-    .day-col { text-align: center; }
-    .day-label { font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 0.5rem; }
-    .day-slot { border: 1.5px dashed var(--border); border-radius: 8px; min-height: 80px; padding: 0.4rem; font-size: 0.78rem; cursor: pointer; transition: border-color 0.15s, background 0.15s; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.3rem; }
-    .day-slot:hover { border-color: var(--primary); background: #fff5f5; }
-    .day-slot.has-meal { border-style: solid; border-color: var(--primary); background: #fff5f5; }
-    .day-slot .meal-name { font-weight: 600; color: var(--text); }
-    .day-slot .portions-badge { background: var(--primary); color: white; border-radius: 20px; padding: 0.1rem 0.45rem; font-size: 0.72rem; }
-    .day-slot .remove-day { font-size: 0.7rem; color: var(--muted); cursor: pointer; }
-    .day-slot .remove-day:hover { color: var(--primary); }
+    /* WEEK LIST */
+    .week-list { display: flex; flex-direction: column; gap: 0.6rem; }
+    .week-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: 10px; background: white; }
+    .week-item .meal-name { flex: 1; font-weight: 600; font-size: 0.95rem; }
+    .week-item .meal-cat { font-size: 0.75rem; color: var(--muted); }
+    .week-item .portions-ctrl { display: flex; align-items: center; gap: 0.4rem; }
+    .week-item .portions-ctrl button { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--border); background: white; cursor: pointer; font-size: 1rem; line-height: 1; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+    .week-item .portions-ctrl button:hover { border-color: var(--primary); color: var(--primary); }
+    .week-item .portions-ctrl span { min-width: 2rem; text-align: center; font-weight: 600; font-size: 0.9rem; }
+    .week-item .remove-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.1rem; padding: 0 0.2rem; transition: color 0.15s; }
+    .week-item .remove-btn:hover { color: var(--primary); }
+    .add-meal-row { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+    .add-meal-row select { flex: 1; }
 
     /* SHOPPING LIST */
     .shop-category { margin-bottom: 1.2rem; }
@@ -167,7 +169,11 @@
         <button class="btn btn-success" onclick="generateShoppingList(); showView('shopping')">Generate Shopping List →</button>
       </div>
       <div class="card-body">
-        <div class="week-grid" id="week-grid"></div>
+        <div class="week-list" id="week-list"></div>
+        <div class="add-meal-row">
+          <select id="add-meal-select"></select>
+          <button class="btn btn-primary" onclick="addWeekMeal()">+ Add</button>
+        </div>
       </div>
     </div>
   </div>
@@ -250,24 +256,6 @@
   </div>
 </div>
 
-<!-- ── PICK MEAL FOR DAY MODAL ── -->
-<div class="modal-backdrop" id="day-modal">
-  <div class="modal">
-    <h2 id="day-modal-title">Choose Meal</h2>
-    <div class="form-group">
-      <label>Meal</label>
-      <select id="day-meal-select"></select>
-    </div>
-    <div class="form-group">
-      <label>Portions</label>
-      <input id="day-portions" type="number" min="1" value="4" />
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeDayModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveDayMeal()">Add to Week</button>
-    </div>
-  </div>
-</div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
@@ -457,7 +445,7 @@ function defaultState() {
         { name: 'Crusty Bread', amount: 'to serve', category: 'Bakery' },
       ]},
     ],
-    week: {},  // { Mon: { mealId, portions } }
+    week: [],
     shoppingList: [], // [{ id, name, amount, category, checked, extra }]
   };
 }
@@ -589,60 +577,63 @@ function deleteMeal(id) {
 
 // ── WEEK PLANNER ──
 function renderPlanner() {
-  const grid = document.getElementById('week-grid');
-  grid.innerHTML = DAYS.map(day => {
-    const entry = state.week[day];
-    const meal = entry ? state.meals.find(m => m.id === entry.mealId) : null;
-    return `
-      <div class="day-col">
-        <div class="day-label">${day}</div>
-        <div class="day-slot ${meal ? 'has-meal' : ''}" onclick="openDayModal('${day}')">
-          ${meal ? `
-            <span class="meal-name">${meal.name}</span>
-            <span class="portions-badge">${entry.portions}p</span>
-            <span class="remove-day" onclick="event.stopPropagation();removeDay('${day}')">✕ remove</span>
-          ` : '<span style="color:var(--muted);font-size:0.8rem">+ Add meal</span>'}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function removeDay(day) { delete state.week[day]; saveState(); renderPlanner(); }
-
-function openDayModal(day) {
-  if (!state.meals.length) { alert('Add some meals to your library first!'); showView('meals'); return; }
-  pendingDay = day;
-  document.getElementById('day-modal-title').textContent = `Meal for ${day}`;
-  const sel = document.getElementById('day-meal-select');
-  sel.innerHTML = state.meals.map(m => `<option value="${m.id}">${m.name}</option>`).join('');
-  const existing = state.week[day];
-  if (existing) { sel.value = existing.mealId; document.getElementById('day-portions').value = existing.portions; }
-  else {
-    const firstMeal = state.meals[0];
-    document.getElementById('day-portions').value = firstMeal ? firstMeal.portions : 4;
+  if (!Array.isArray(state.week)) state.week = [];
+  const list = document.getElementById('week-list');
+  if (!state.week.length) {
+    list.innerHTML = '<div class="empty-state"><div class="icon">📅</div>No meals added yet. Pick from the dropdown below.</div>';
+  } else {
+    list.innerHTML = state.week.map((entry, i) => {
+      const meal = state.meals.find(m => m.id === entry.mealId);
+      if (!meal) return '';
+      return `
+        <div class="week-item">
+          <div style="flex:1">
+            <div class="meal-name">${meal.name}</div>
+            <div class="meal-cat">${meal.category}</div>
+          </div>
+          <div class="portions-ctrl">
+            <button onclick="changePortions(${i}, -1)">−</button>
+            <span>${entry.portions} portions</span>
+            <button onclick="changePortions(${i}, 1)">+</button>
+          </div>
+          <button class="remove-btn" onclick="removeWeekMeal(${i})">✕</button>
+        </div>`;
+    }).join('');
   }
-  sel.onchange = () => {
-    const m = state.meals.find(x => x.id === sel.value);
-    if (m) document.getElementById('day-portions').value = m.portions;
-  };
-  document.getElementById('day-modal').classList.add('open');
+  // Populate the add-meal dropdown
+  const sel = document.getElementById('add-meal-select');
+  sel.innerHTML = state.meals.length
+    ? state.meals.map(m => `<option value="${m.id}">${m.name}</option>`).join('')
+    : '<option value="">No meals in library</option>';
 }
-function closeDayModal() { document.getElementById('day-modal').classList.remove('open'); }
-function saveDayMeal() {
-  const mealId = document.getElementById('day-meal-select').value;
-  const portions = parseInt(document.getElementById('day-portions').value) || 4;
-  state.week[pendingDay] = { mealId, portions };
+
+function addWeekMeal() {
+  if (!Array.isArray(state.week)) state.week = [];
+  const mealId = document.getElementById('add-meal-select').value;
+  if (!mealId) return;
+  const meal = state.meals.find(m => m.id === mealId);
+  state.week.push({ mealId, portions: meal ? meal.portions : 4 });
   saveState();
-  closeDayModal();
+  renderPlanner();
+}
+
+function removeWeekMeal(i) {
+  state.week.splice(i, 1);
+  saveState();
+  renderPlanner();
+}
+
+function changePortions(i, delta) {
+  state.week[i].portions = Math.max(1, (state.week[i].portions || 1) + delta);
+  saveState();
   renderPlanner();
 }
 
 // ── SHOPPING LIST ──
 function generateShoppingList() {
-  const aggregated = {}; // key: name+category => { name, amount (raw), category, qty }
-  for (const day of DAYS) {
-    const entry = state.week[day];
+  const aggregated = {};
+  const weekEntries = Array.isArray(state.week) ? state.week : Object.values(state.week || {});
+  for (const entry of weekEntries) {
     if (!entry) continue;
     const meal = state.meals.find(m => m.id === entry.mealId);
     if (!meal) continue;
@@ -766,7 +757,7 @@ function renderICALinks() {
 Object.assign(window, {
   showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
   addIngredientRow, removeIngredient,
-  openDayModal, closeDayModal, saveDayMeal, removeDay,
+  addWeekMeal, removeWeekMeal, changePortions,
   generateShoppingList, toggleItem, removeItem, clearChecked, addExtraItem,
 });
 
