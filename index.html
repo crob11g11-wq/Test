@@ -817,7 +817,7 @@ function renderICALinks() {
   const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
   document.getElementById('ica-links').innerHTML = unchecked.map(item =>
     `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.nameSv || item.name)}" target="_blank" rel="noopener noreferrer">
-      <span>${item.name}${item.amount ? ` <span style="color:var(--muted);font-size:0.82rem;">${item.amount}</span>` : ''}</span>
+      <span>${item.name}${item.amount ? ` <span style="color:var(--muted);font-size:0.82rem;">${item.amount}</span>` : ''}${item.nameSv ? ` <span style="color:var(--muted);font-size:0.75rem;">(${item.nameSv})</span>` : ' <span style="color:var(--muted);font-size:0.75rem;">⏳</span>'}</span>
     </a>`
   ).join('');
 }
