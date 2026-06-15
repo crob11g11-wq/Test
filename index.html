@@ -202,7 +202,7 @@
       <div class="card-header"><h2>Export to ICA Online Shop</h2></div>
       <div class="card-body">
         <div class="ica-export">
-          <p>Search each item directly on ICA's website. Click a link to open the ICA search for that ingredient.</p>
+          <p>Search each item directly at ICA Liljeholmen. Click a link to open the store search for that ingredient.</p>
           <div class="ica-links" id="ica-links"></div>
         </div>
       </div>
@@ -760,7 +760,7 @@ function addExtraItem() {
 function renderICALinks() {
   const unchecked = state.shoppingList.filter(i => !i.checked);
   document.getElementById('ica-links').innerHTML = unchecked.map(item =>
-    `<a href="https://www.ica.se/handla/search/?text=${encodeURIComponent(item.name)}" target="_blank" rel="noopener">🔍 ${item.name}</a>`
+    `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?text=${encodeURIComponent(item.name)}" target="_blank" rel="noopener">🔍 ${item.name}</a>`
   ).join('');
 }
 
