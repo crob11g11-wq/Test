@@ -15,7 +15,7 @@ export default {
     }
 
     const url = new URL(request.url);
-    const target = 'https://handla.api.ica.se' + url.pathname + url.search;
+    const target = 'https://api.ica.se' + url.pathname + url.search;
 
     const headers = new Headers(request.headers);
 
