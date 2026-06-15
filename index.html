@@ -809,7 +809,7 @@ function openAllInICA() {
 
   // Open first tab immediately (required to avoid popup blocker on first call)
   const first = unchecked[0];
-  const w = window.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(first.name)}`, '_blank', 'width=1200,height=800');
+  const w = window.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(first.name)}`, '_blank');
   if (!w || w.closed) {
     alert('Your browser blocked the popups. Please click the popup-blocked icon in your address bar and choose "Always allow popups from this site", then try again.');
     return;
