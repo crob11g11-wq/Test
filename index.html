@@ -237,9 +237,11 @@
         <hr style="border:none;border-top:1px solid var(--border);margin:1.25rem 0;" />
 
         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <button class="btn btn-success" onclick="openAllInICA()">🔍 Open all items in ICA</button>
           <button class="btn btn-outline" onclick="copyListToClipboard()">📋 Copy list to clipboard</button>
           <a href="https://handlaprivatkund.ica.se/stores/1003417" target="_blank" rel="noopener" class="btn btn-outline">🏪 Open ICA Liljeholmen</a>
         </div>
+        <div id="open-all-confirm" style="display:none;font-size:0.85rem;color:var(--muted);margin-bottom:0.5rem;"></div>
         <div id="copy-confirm" style="display:none;color:var(--success);font-size:0.85rem;margin-bottom:0.75rem;">✓ Copied! Paste into ICA's shopping list.</div>
         <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem;">Search individual items:</p>
         <div class="ica-links" id="ica-links"></div>
@@ -801,6 +803,19 @@ function addExtraItem() {
   renderShopping();
 }
 
+function openAllInICA() {
+  const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
+  if (!unchecked.length) return;
+  const confirmEl = document.getElementById('open-all-confirm');
+  confirmEl.textContent = `Opening ${unchecked.length} tabs — if your browser blocks popups, click the address bar and allow popups for this site.`;
+  confirmEl.style.display = 'block';
+  unchecked.forEach((item, i) => {
+    setTimeout(() => {
+      window.open(`https://handlaprivatkund.ica.se/stores/1003417/search?text=${encodeURIComponent(item.name)}`, '_blank');
+    }, i * 300);
+  });
+}
+
 function copyListToClipboard() {
   const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
   const text = unchecked.map(i => i.amount ? `${i.name} – ${i.amount}` : i.name).join('\n');
@@ -916,7 +931,7 @@ Object.assign(window, {
   showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
   addIngredientRow, removeIngredient,
   addWeekMeal, removeWeekMeal, changePortions,
-  generateShoppingList, toggleItem, removeItem, clearChecked, addExtraItem, copyListToClipboard,
+  generateShoppingList, toggleItem, removeItem, clearChecked, addExtraItem, copyListToClipboard, openAllInICA,
   icaLogin, icaLogout, syncToICA,
 });
 
