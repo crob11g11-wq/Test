@@ -556,6 +556,7 @@ label {
     <button onclick="showView('shopping')">Shopping List</button>
   </nav>
   <span id="sync-status"></span>
+  <button onclick="showView('settings')" style="background:rgba(255,255,255,0.15);border:none;color:white;padding:0.4rem 0.6rem;border-radius:8px;cursor:pointer;font-size:1rem;margin-left:0.5rem;" title="Settings">⚙️</button>
 </header>
 
 <div id="setup-banner" style="display:none;background:#fff3cd;border-bottom:2px solid #ffc107;padding:0.75rem 1.5rem;font-size:0.88rem;">
@@ -626,6 +627,24 @@ label {
         <div id="copy-confirm" style="display:none;color:var(--success);font-size:0.85rem;margin-bottom:0.75rem;">✓ Copied!</div>
         <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem;">Or click an item to search individually:</p>
         <div class="ica-links" id="ica-links"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS VIEW ── -->
+  <div id="view-settings" class="view">
+    <div class="card">
+      <div class="card-header"><h2>⚙️ Settings</h2></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Anthropic API Key</label>
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">Used for photo recipe import. Stored only in this browser — never sent to GitHub. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--primary);">console.anthropic.com</a>.</p>
+          <div style="display:flex;gap:0.5rem;">
+            <input type="password" id="settings-api-key" placeholder="sk-ant-…" style="flex:1;font-family:monospace;" />
+            <button class="btn btn-primary" onclick="saveApiKey()">Save</button>
+          </div>
+          <div id="settings-api-status" style="font-size:0.82rem;margin-top:0.5rem;"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -942,6 +961,23 @@ function showView(v) {
   if (v === 'meals') renderMeals();
   if (v === 'planner') renderPlanner();
   if (v === 'shopping') renderShopping();
+  if (v === 'settings') {
+    const stored = localStorage.getItem('anthropic_api_key');
+    document.getElementById('settings-api-key').value = stored ? '••••••••••••••••' : '';
+    const status = document.getElementById('settings-api-status');
+    status.textContent = stored ? '✅ API key saved in this browser.' : '';
+    status.style.color = 'var(--success)';
+  }
+}
+
+function saveApiKey() {
+  const val = document.getElementById('settings-api-key').value.trim();
+  const status = document.getElementById('settings-api-status');
+  if (!val || val.startsWith('•')) { status.textContent = 'Enter a new key to save.'; status.style.color = 'var(--muted)'; return; }
+  localStorage.setItem('anthropic_api_key', val);
+  document.getElementById('settings-api-key').value = '••••••••••••••••';
+  status.textContent = '✅ Saved! Photo import is now enabled.';
+  status.style.color = 'var(--success)';
 }
 
 // ── CATEGORY COLORS ──
@@ -1093,8 +1129,9 @@ async function importFromPhoto(input) {
   const status = document.getElementById('url-import-status');
   document.getElementById('photo-import-name').textContent = file.name;
 
-  if (!ANTHROPIC_API_KEY) {
-    status.textContent = '❌ Add your Anthropic API key to the app config to use photo import.';
+  const apiKey = ANTHROPIC_API_KEY || localStorage.getItem('anthropic_api_key');
+  if (!apiKey) {
+    status.textContent = '❌ No API key set. Go to ⚙️ Settings and add your Anthropic API key.';
     status.style.color = '#c1121f';
     return;
   }
@@ -1113,7 +1150,7 @@ async function importFromPhoto(input) {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': ANTHROPIC_API_KEY,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true',
         'content-type': 'application/json',
@@ -1484,7 +1521,7 @@ Object.assign(window, {
   showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
   addIngredientRow, removeIngredient,
   addWeekMeal, removeWeekMeal, changePortions,
-  generateShoppingList, toggleItem, removeItem, selectAll, clearChecked, addExtraItem, copyListToClipboard, openAllInICA, importFromUrl, importFromPhoto,
+  generateShoppingList, toggleItem, removeItem, selectAll, clearChecked, addExtraItem, copyListToClipboard, openAllInICA, importFromUrl, importFromPhoto, saveApiKey,
 });
 
 // Only render immediately if Firebase is not configured (local-only mode)
