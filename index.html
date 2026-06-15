@@ -219,6 +219,18 @@
 <div class="modal-backdrop" id="meal-modal">
   <div class="modal">
     <h2 id="modal-title">New Meal</h2>
+
+    <!-- URL import -->
+    <div class="form-group" id="url-import-section">
+      <label>Import from recipe URL (optional)</label>
+      <div style="display:flex;gap:0.5rem;">
+        <input id="recipe-url" placeholder="https://www.bbcgoodfood.com/recipes/..." style="flex:1;" />
+        <button class="btn btn-outline" onclick="importFromUrl()">Import</button>
+      </div>
+      <div id="url-import-status" style="font-size:0.82rem;margin-top:0.4rem;color:var(--muted);"></div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:0.5rem 0 1rem;" />
+
     <div class="form-group">
       <label>Meal Name</label>
       <input id="meal-name" placeholder="e.g. Spaghetti Bolognese" />
@@ -524,9 +536,73 @@ function openMealModal(id) {
   document.getElementById('meal-portions').oninput = e => document.getElementById('per-portions').textContent = e.target.value;
   window._tmpIngredients = meal ? [...meal.ingredients.map(i => ({...i}))] : [];
   renderIngredientList();
+  document.getElementById('recipe-url').value = '';
+  document.getElementById('url-import-status').textContent = '';
+  document.getElementById('url-import-section').style.display = meal ? 'none' : 'block';
   document.getElementById('meal-modal').classList.add('open');
 }
 function closeMealModal() { document.getElementById('meal-modal').classList.remove('open'); }
+
+async function importFromUrl() {
+  const url = document.getElementById('recipe-url').value.trim();
+  const status = document.getElementById('url-import-status');
+  if (!url) return;
+  status.textContent = '⏳ Fetching recipe…';
+  status.style.color = 'var(--muted)';
+  try {
+    const proxyRes = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`);
+    const proxyData = await proxyRes.json();
+    const html = proxyData.contents;
+    const matches = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
+    let recipe = null;
+    for (const m of matches) {
+      try {
+        const json = JSON.parse(m[1]);
+        const find = obj => {
+          if (!obj) return null;
+          if (obj['@type'] === 'Recipe') return obj;
+          if (Array.isArray(obj)) { for (const o of obj) { const r = find(o); if (r) return r; } }
+          if (obj['@graph']) return find(obj['@graph']);
+          return null;
+        };
+        recipe = find(json);
+        if (recipe) break;
+      } catch {}
+    }
+    if (!recipe) { status.textContent = '❌ No recipe data found on this page.'; status.style.color = '#c1121f'; return; }
+
+    if (recipe.name) document.getElementById('meal-name').value = recipe.name;
+    const yld = recipe.recipeYield;
+    const portions = parseInt(Array.isArray(yld) ? yld[0] : yld) || 4;
+    document.getElementById('meal-portions').value = portions;
+    document.getElementById('per-portions').textContent = portions;
+
+    const CATS = {
+      'Meat & Fish': ['salmon','cod','tuna','chicken','beef','pork','lamb','prawn','shrimp','fish','bacon','sausage','mince','steak','anchovy','sardine','haddock','mackerel'],
+      'Dairy & Eggs': ['milk','cream','butter','cheese','yogurt','egg','ricotta','parmesan','cheddar','mozzarella','creme fraiche'],
+      'Produce': ['onion','garlic','tomato','potato','carrot','pepper','lemon','lime','spinach','broccoli','courgette','mushroom','ginger','basil','dill','parsley','coriander','spring onion','leek','celery','aubergine','cucumber','lettuce','avocado','herbs'],
+      'Bakery': ['bread','flour','breadcrumb','roll','baguette','pitta','wrap','pastry','tortilla'],
+      'Frozen': ['frozen'],
+    };
+    function guessCategory(name) {
+      const lower = name.toLowerCase();
+      for (const [cat, kws] of Object.entries(CATS)) { if (kws.some(k => lower.includes(k))) return cat; }
+      return 'Pantry';
+    }
+    window._tmpIngredients = (recipe.recipeIngredient || []).map(raw => {
+      const m = raw.match(/^([\d\/\s¼½¾⅓⅔]+(?:g|kg|ml|l|tbsp|tsp|oz|lb|cups?|handful|pinch|bunch|cloves?|can|tin|slices?|sprigs?|heads?|large|medium|small)?\.?\s*)/i);
+      const amount = m ? m[1].trim() : '';
+      const name = raw.slice(amount.length).trim() || raw;
+      return { name, amount, category: guessCategory(name) };
+    });
+    renderIngredientList();
+    status.textContent = `✅ Imported ${window._tmpIngredients.length} ingredients — review and save.`;
+    status.style.color = 'var(--success)';
+  } catch (e) {
+    status.textContent = `❌ Could not fetch recipe: ${e.message}`;
+    status.style.color = '#c1121f';
+  }
+}
 
 function renderIngredientList() {
   document.getElementById('ingredient-list').innerHTML = window._tmpIngredients.map((ing, i) => `
@@ -837,7 +913,7 @@ Object.assign(window, {
   showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
   addIngredientRow, removeIngredient,
   addWeekMeal, removeWeekMeal, changePortions,
-  generateShoppingList, toggleItem, removeItem, selectAll, clearChecked, addExtraItem, copyListToClipboard, openAllInICA,
+  generateShoppingList, toggleItem, removeItem, selectAll, clearChecked, addExtraItem, copyListToClipboard, openAllInICA, importFromUrl,
 });
 
 // Only render immediately if Firebase is not configured (local-only mode)
