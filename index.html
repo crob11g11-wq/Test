@@ -649,14 +649,19 @@ label {
   <div class="modal">
     <h2 id="modal-title">New Meal</h2>
 
-    <!-- URL import -->
+    <!-- Import options -->
     <div class="form-group" id="url-import-section">
-      <label>Import from recipe URL (optional)</label>
-      <div style="display:flex;gap:0.5rem;">
-        <input id="recipe-url" placeholder="https://www.bbcgoodfood.com/recipes/..." style="flex:1;" />
-        <button class="btn btn-outline" onclick="importFromUrl()">Import</button>
+      <label>Import recipe (optional)</label>
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
+        <input id="recipe-url" placeholder="Paste a recipe URL…" style="flex:1;" />
+        <button class="btn btn-outline" onclick="importFromUrl()">Import URL</button>
       </div>
-      <div id="url-import-status" style="font-size:0.82rem;margin-top:0.4rem;color:var(--muted);"></div>
+      <div style="display:flex;gap:0.5rem;align-items:center;" id="photo-import-row">
+        <label for="recipe-photo-input" class="btn btn-outline" style="cursor:pointer;margin:0;text-transform:none;letter-spacing:0;font-size:0.85rem;font-weight:600;">📷 Import from photo</label>
+        <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" style="display:none;" onchange="importFromPhoto(this)" />
+        <span id="photo-import-name" style="font-size:0.8rem;color:var(--muted);"></span>
+      </div>
+      <div id="url-import-status" style="font-size:0.82rem;margin-top:0.5rem;color:var(--muted);"></div>
     </div>
     <hr style="border:none;border-top:1px solid var(--border);margin:0.5rem 0 1rem;" />
 
@@ -721,6 +726,12 @@ const FIREBASE_CONFIG = {
   appId: "1:1083741903997:web:46e2e261e3ce3b3d86e514",
   measurementId: "G-5Y5CEM2JKS"
 };
+// ────────────────────────────────────────────────────────────────────────────
+
+// ── ANTHROPIC API KEY ────────────────────────────────────────────────────────
+// Paste your Anthropic API key here to enable photo recipe import
+// Get one at https://console.anthropic.com
+const ANTHROPIC_API_KEY = "";
 // ────────────────────────────────────────────────────────────────────────────
 
 const configured = FIREBASE_CONFIG.databaseURL !== "";
@@ -988,6 +999,7 @@ function openMealModal(id) {
   renderIngredientList();
   document.getElementById('recipe-url').value = '';
   document.getElementById('url-import-status').textContent = '';
+  document.getElementById('photo-import-name').textContent = '';
   document.getElementById('url-import-section').style.display = meal ? 'none' : 'block';
   document.getElementById('meal-modal').classList.add('open');
 }
@@ -1073,6 +1085,91 @@ async function importFromUrl() {
     status.textContent = `❌ Could not fetch recipe: ${e.message}`;
     status.style.color = '#c1121f';
   }
+}
+
+async function importFromPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('url-import-status');
+  document.getElementById('photo-import-name').textContent = file.name;
+
+  if (!ANTHROPIC_API_KEY) {
+    status.textContent = '❌ Add your Anthropic API key to the app config to use photo import.';
+    status.style.color = '#c1121f';
+    return;
+  }
+
+  status.textContent = '⏳ Reading recipe from photo…';
+  status.style.color = 'var(--muted)';
+
+  try {
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } },
+            { type: 'text', text: `Extract the recipe from this image and return ONLY a JSON object with this exact structure (no markdown, no explanation):
+{"name":"Recipe Name","portions":4,"ingredients":[{"name":"Ingredient","amount":"200g"},{"name":"Another","amount":"1 tbsp"}]}
+Use short ingredient names without prep notes (no "finely chopped", "peeled", etc). If portions are not visible, use 4.` }
+          ]
+        }]
+      })
+    });
+
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const data = await res.json();
+    const text = data.content[0].text.trim();
+    const recipe = JSON.parse(text);
+
+    if (recipe.name) document.getElementById('meal-name').value = recipe.name;
+    if (recipe.portions) {
+      document.getElementById('meal-portions').value = recipe.portions;
+      document.getElementById('per-portions').textContent = recipe.portions;
+    }
+
+    const CATS = {
+      'Meat & Fish': ['salmon','cod','tuna','chicken','beef','pork','lamb','prawn','shrimp','fish','bacon','sausage','mince','steak','anchovy','haddock','mackerel'],
+      'Dairy & Eggs': ['milk','cream','butter','cheese','yogurt','egg','ricotta','parmesan','cheddar','mozzarella'],
+      'Produce': ['onion','garlic','tomato','potato','carrot','pepper','lemon','lime','spinach','broccoli','courgette','mushroom','ginger','basil','dill','parsley','coriander','spring onion','leek','celery','aubergine','cucumber','lettuce','avocado'],
+      'Bakery': ['bread','flour','breadcrumb','roll','baguette','pitta','wrap','pastry','tortilla'],
+      'Frozen': ['frozen'],
+    };
+    function guessCategory(name) {
+      const lower = name.toLowerCase();
+      for (const [cat, kws] of Object.entries(CATS)) { if (kws.some(k => lower.includes(k))) return cat; }
+      return 'Pantry';
+    }
+
+    window._tmpIngredients = (recipe.ingredients || []).map(i => ({
+      name: i.name,
+      amount: i.amount || '',
+      category: guessCategory(i.name),
+    }));
+    renderIngredientList();
+    status.textContent = `✅ Imported ${window._tmpIngredients.length} ingredients — review and save.`;
+    status.style.color = 'var(--success)';
+  } catch (e) {
+    status.textContent = `❌ Could not read photo: ${e.message}`;
+    status.style.color = '#c1121f';
+  }
+  input.value = '';
 }
 
 function renderIngredientList() {
@@ -1387,7 +1484,7 @@ Object.assign(window, {
   showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
   addIngredientRow, removeIngredient,
   addWeekMeal, removeWeekMeal, changePortions,
-  generateShoppingList, toggleItem, removeItem, selectAll, clearChecked, addExtraItem, copyListToClipboard, openAllInICA, importFromUrl,
+  generateShoppingList, toggleItem, removeItem, selectAll, clearChecked, addExtraItem, copyListToClipboard, openAllInICA, importFromUrl, importFromPhoto,
 });
 
 // Only render immediately if Firebase is not configured (local-only mode)
