@@ -590,10 +590,26 @@ async function importFromUrl() {
       return 'Pantry';
     }
     window._tmpIngredients = (recipe.recipeIngredient || []).map(raw => {
-      const m = raw.match(/^([\d\/\s¼½¾⅓⅔]+(?:g|kg|ml|l|tbsp|tsp|oz|lb|cups?|handful|pinch|bunch|cloves?|can|tin|slices?|sprigs?|heads?|large|medium|small)?\.?\s*)/i);
-      const amount = m ? m[1].trim() : '';
-      const name = raw.slice(amount.length).trim() || raw;
-      return { name, amount, category: guessCategory(name) };
+      // Normalise unicode fractions
+      let s = raw.trim()
+        .replace(/¼/g,'1/4').replace(/½/g,'1/2').replace(/¾/g,'3/4')
+        .replace(/⅓/g,'1/3').replace(/⅔/g,'2/3');
+
+      // Extract leading amount: number(s) + optional unit
+      const amtMatch = s.match(/^([\d\s\/\.]+(?:g|kg|ml|l|tbsp|tsp|oz|lb|cups?|handful|pinch|bunch|cloves?|cans?|tins?|slices?|sprigs?|heads?|large|medium|small|x)?\.?\s*)/i);
+      const amount = amtMatch ? amtMatch[1].trim() : '';
+      let name = s.slice(amount.length).trim();
+
+      // Strip prep notes after comma/bracket (e.g. ", finely chopped", "(optional)")
+      name = name.replace(/\s*[,(].*$/, '').trim();
+
+      // Strip leading adjectives like "fresh", "dried", "frozen", "roughly", "finely" etc.
+      name = name.replace(/^(fresh|dried|frozen|roughly|finely|thinly|coarsely|lightly|freshly|good quality|quality|ground|whole|chopped|grated|sliced|diced|peeled|deseeded|crushed|minced|large|small|medium)\s+/gi, '').trim();
+
+      // Capitalise first letter
+      name = name.charAt(0).toUpperCase() + name.slice(1);
+
+      return { name: name || raw, amount, category: guessCategory(name || raw) };
     });
     renderIngredientList();
     status.textContent = `✅ Imported ${window._tmpIngredients.length} ingredients — review and save.`;
