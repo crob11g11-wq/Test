@@ -1176,7 +1176,8 @@ Use short ingredient names without prep notes (no "finely chopped", "peeled", et
     if (!res.ok) throw new Error(`API error ${res.status}`);
     const data = await res.json();
     const text = data.content[0].text.trim();
-    const recipe = JSON.parse(text);
+    const cleaned = text.replace(/^```[a-z]*\n?/i, '').replace(/```$/,'').trim();
+    const recipe = JSON.parse(cleaned);
 
     if (recipe.name) document.getElementById('meal-name').value = recipe.name;
     if (recipe.portions) {
