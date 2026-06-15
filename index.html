@@ -815,10 +815,10 @@ function openAllInICA() {
     return;
   }
 
-  // Open remaining tabs with 1.5s delay between each to avoid bot detection
+  // Open remaining items as tabs inside the new window, staggered to avoid bot detection
   unchecked.slice(1).forEach((item, i) => {
     setTimeout(() => {
-      window.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`, '_blank', 'width=1200,height=800');
+      w.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`, '_blank');
     }, (i + 1) * 500);
   });
 }
