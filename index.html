@@ -631,24 +631,33 @@ function changePortions(i, delta) {
 }
 
 // ── SHOPPING LIST ──
+function toArr(val) {
+  if (!val) return [];
+  return Array.isArray(val) ? val : Object.values(val);
+}
+
 function generateShoppingList() {
   const aggregated = {};
-  const weekEntries = Array.isArray(state.week) ? state.week : Object.values(state.week || {});
+  const weekEntries = toArr(state.week);
+  const meals = toArr(state.meals);
+
   for (const entry of weekEntries) {
     if (!entry) continue;
-    const meal = state.meals.find(m => m.id === entry.mealId);
+    const meal = meals.find(m => m.id === entry.mealId);
     if (!meal) continue;
-    const scale = entry.portions / meal.portions;
-    for (const ing of meal.ingredients) {
+    const ingredients = toArr(meal.ingredients);
+    const scale = entry.portions / (meal.portions || 4);
+    for (const ing of ingredients) {
       const key = ing.name.toLowerCase() + '|' + ing.category;
       if (!aggregated[key]) aggregated[key] = { name: ing.name, category: ing.category, rawAmounts: [] };
       aggregated[key].rawAmounts.push({ amount: ing.amount, scale });
     }
   }
   // Keep existing extra items
-  const extras = state.shoppingList.filter(i => i.extra);
+  const shoppingList = toArr(state.shoppingList);
+  const extras = shoppingList.filter(i => i.extra);
   state.shoppingList = Object.values(aggregated).map(item => {
-    const existing = state.shoppingList.find(s => s.name.toLowerCase() === item.name.toLowerCase());
+    const existing = shoppingList.find(s => s.name.toLowerCase() === item.name.toLowerCase());
     return {
       id: existing?.id || uid(),
       name: item.name,
@@ -683,6 +692,7 @@ function summariseAmounts(rawAmounts) {
 }
 
 function renderShopping() {
+  if (!Array.isArray(state.shoppingList)) state.shoppingList = toArr(state.shoppingList);
   if (!state.shoppingList.length) {
     document.getElementById('shop-list').innerHTML = '<div class="empty-state"><div class="icon">🛒</div>No items yet. Plan your week first and click "Generate Shopping List".</div>';
     document.getElementById('ica-links').innerHTML = '';
