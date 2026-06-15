@@ -845,7 +845,7 @@ function copyListToClipboard() {
 function renderICALinks() {
   const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
   document.getElementById('ica-links').innerHTML = unchecked.map(item =>
-    `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}" target="_blank" rel="noopener">
+    `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}" target="_blank" rel="noopener noreferrer">
       <span>${item.name}${item.amount ? ` <span style="color:var(--muted);font-size:0.82rem;">${item.amount}</span>` : ''}</span>
     </a>`
   ).join('');
