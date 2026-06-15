@@ -1,7 +1,5 @@
 // Cloudflare Worker — ICA API proxy
 // Deploy this at workers.cloudflare.com (free account, takes ~2 mins)
-// It forwards requests to handla.api.ica.se and adds CORS headers so
-// the meal planner can call ICA's API from the browser.
 
 export default {
   async fetch(request) {
@@ -10,7 +8,7 @@ export default {
         headers: {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
-          'Access-Control-Allow-Headers': 'Authorization, AuthenticationTicket, Content-Type',
+          'Access-Control-Allow-Headers': 'Authorization, AuthenticationTicket, Content-Type, X-ICA-User, X-ICA-Pass',
           'Access-Control-Expose-Headers': 'AuthenticationTicket, SessionTicket, LogoutKey',
         },
       });
@@ -20,6 +18,17 @@ export default {
     const target = 'https://handla.api.ica.se' + url.pathname + url.search;
 
     const headers = new Headers(request.headers);
+
+    // Cloudflare strips Authorization on inbound requests — reconstruct it
+    // from custom headers if provided
+    const icaUser = headers.get('X-ICA-User');
+    const icaPass = headers.get('X-ICA-Pass');
+    if (icaUser && icaPass) {
+      headers.set('Authorization', 'Basic ' + btoa(`${icaUser}:${icaPass}`));
+    }
+
+    headers.delete('X-ICA-User');
+    headers.delete('X-ICA-Pass');
     headers.delete('origin');
     headers.delete('host');
 

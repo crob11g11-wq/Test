@@ -840,12 +840,11 @@ async function icaLogin() {
   errEl.style.display = 'none';
   if (!email || !password) { errEl.textContent = 'Please enter your email and password.'; errEl.style.display = 'block'; return; }
 
-  const creds = btoa(`${email}:${password}`);
   try {
     const res = await fetch(icaProxyUrl('/api/login'), {
-      headers: { 'Authorization': `Basic ${creds}` },
+      headers: { 'X-ICA-User': email, 'X-ICA-Pass': password },
     });
-    if (!res.ok) throw new Error('Invalid credentials');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const ticket = res.headers.get('AuthenticationTicket');
     const data = await res.json();
     if (!ticket) throw new Error('No ticket received');
@@ -854,7 +853,7 @@ async function icaLogin() {
     document.getElementById('ica-password').value = '';
     renderICALoginState();
   } catch (e) {
-    errEl.textContent = e.message === 'Invalid credentials' ? 'Wrong email or password.' : 'Could not connect. Check your proxy URL is set up.';
+    errEl.textContent = e.message.includes('401') ? 'Wrong personnummer or password.' : `Could not connect: ${e.message}`;
     errEl.style.display = 'block';
   }
 }
