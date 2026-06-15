@@ -819,7 +819,7 @@ function openAllInICA() {
   unchecked.slice(1).forEach((item, i) => {
     setTimeout(() => {
       w.open(`https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.name)}`, '_blank');
-    }, (i + 1) * 500);
+    }, (i + 1) * 2000);
   });
 }
 
