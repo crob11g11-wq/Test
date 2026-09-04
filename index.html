@@ -1,1 +1,1510 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weekly Meal Planner</title>
+  <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --bg: #faf9f7;
+  --surface: #ffffff;
+  --primary: #e8445a;
+  --primary-dark: #c9364a;
+  --text: #1a1a2e;
+  --muted: #8b8fa8;
+  --border: #ebe9e4;
+  --success: #52b788;
+  --tag-bg: #f0fdf4;
+  --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #e8445a 0%, #c9364a 100%);
+  color: white;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 20px rgba(232,68,90,0.3);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+header h1 { font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+header nav { margin-left: auto; display: flex; gap: 0.4rem; }
+header nav button {
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  color: white;
+  padding: 0.45rem 1rem;
+  border-radius: 24px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+header nav button:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.4); }
+header nav button.active { background: rgba(255,255,255,0.35); border-color: rgba(255,255,255,0.6); font-weight: 600; }
+
+#sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  color: white;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+}
+
+/* ── SETUP BANNER ── */
+#setup-banner {
+  background: #fffbeb;
+  border-bottom: 2px solid #f59e0b;
+  padding: 0.75rem 1.5rem;
+  font-size: 0.85rem;
+  color: #92400e;
+}
+
+/* ── MAIN CONTENT ── */
+main { max-width: 960px; margin: 0 auto; padding: 1.5rem; padding-bottom: 6rem; }
+
+/* ── CARDS ── */
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  border: 1px solid rgba(235,233,228,0.5);
+}
+.card-header {
+  padding: 1.1rem 1.4rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+}
+.card-header h2 { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; color: var(--text); }
+.card-body { padding: 1.25rem 1.4rem; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1.1rem;
+  border-radius: 24px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  transition: all 0.2s;
+  letter-spacing: 0.01em;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 10px rgba(232,68,90,0.3); }
+.btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 14px rgba(232,68,90,0.4); transform: translateY(-1px); }
+.btn-success { background: var(--success); color: white; box-shadow: 0 2px 10px rgba(82,183,136,0.3); }
+.btn-success:hover { background: #3da873; transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--primary); color: var(--primary); background: rgba(232,68,90,0.04); }
+.btn-sm { padding: 0.35rem 0.8rem; font-size: 0.8rem; }
+.btn-danger { background: transparent; color: #c9364a; border: 1.5px solid #fecdd3; }
+.btn-danger:hover { background: #fef2f2; border-color: #fca5a5; }
+.btn-icon {
+  padding: 0.3rem;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.btn-icon:hover { color: var(--primary); background: rgba(232,68,90,0.08); }
+
+/* ── FORMS ── */
+input, select, textarea {
+  width: 100%;
+  padding: 0.6rem 0.9rem;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  outline: none;
+  background: white;
+  color: var(--text);
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(232,68,90,0.1);
+}
+label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.form-group { margin-bottom: 1rem; }
+.form-row { display: grid; gap: 0.75rem; }
+.form-row.cols-2 { grid-template-columns: 1fr 1fr; }
+.form-row.cols-3 { grid-template-columns: 1fr 1fr auto; }
+
+/* ── MEAL GRID ── */
+.meal-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 1.1rem; }
+
+.meal-card {
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--category-color, var(--primary));
+  border-radius: var(--radius-sm);
+  padding: 1.1rem;
+  position: relative;
+  transition: box-shadow 0.2s, transform 0.2s;
+  background: white;
+}
+.meal-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+
+.meal-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.5rem; }
+.meal-card h3 { font-size: 0.95rem; font-weight: 700; line-height: 1.3; color: var(--text); }
+.meal-card .source-badge { font-size: 0.7rem; color: var(--muted); white-space: nowrap; display: flex; align-items: center; gap: 0.2rem; }
+
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--tag-bg);
+  color: var(--success);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  margin-bottom: 0.6rem;
+  border: 1px solid rgba(82,183,136,0.25);
+}
+
+.meal-card .ingredient-count {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  background: var(--bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  margin-left: 0.4rem;
+}
+
+.meal-card .ingredients { list-style: none; font-size: 0.82rem; color: var(--muted); margin: 0.5rem 0; }
+.meal-card .ingredients li { padding: 0.08rem 0; display: flex; align-items: center; gap: 0.4rem; }
+.meal-card .ingredients li::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+.meal-card .portions-info { font-size: 0.75rem; color: var(--muted); margin-top: 0.4rem; padding-top: 0.4rem; border-top: 1px solid var(--border); }
+.meal-card .actions { display: flex; gap: 0.4rem; margin-top: 0.75rem; }
+
+/* ── WEEK LIST ── */
+.week-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.week-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--category-color, var(--primary));
+  border-radius: var(--radius-sm);
+  background: white;
+  transition: box-shadow 0.15s;
+}
+.week-item:hover { box-shadow: var(--shadow-sm); }
+.week-item .meal-name { font-weight: 700; font-size: 0.95rem; color: var(--text); }
+.week-item .meal-cat {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+.week-item .meal-cat::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--category-color, var(--muted));
+  display: inline-block;
+}
+.week-item .portions-ctrl { display: flex; align-items: center; gap: 0.5rem; }
+.week-item .portions-ctrl button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  color: var(--text);
+  font-family: inherit;
+}
+.week-item .portions-ctrl button:hover { border-color: var(--primary); color: var(--primary); background: rgba(232,68,90,0.05); }
+.week-item .portions-ctrl span {
+  min-width: 5rem;
+  text-align: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text);
+  background: var(--bg);
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+}
+.week-item .remove-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.1rem; padding: 0.2rem; transition: color 0.15s; border-radius: 6px; }
+.week-item .remove-btn:hover { color: var(--primary); background: rgba(232,68,90,0.08); }
+.add-meal-row { display: flex; gap: 0.6rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.add-meal-row select { flex: 1; }
+
+/* ── SHOPPING LIST ── */
+.shop-category { margin-bottom: 1.5rem; }
+.shop-category h3 {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: white;
+  background: var(--muted);
+  margin-bottom: 0.6rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  display: inline-block;
+}
+
+.shop-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 0.5rem;
+  border-bottom: 1px solid #f5f4f0;
+  transition: all 0.2s;
+}
+.shop-item:last-child { border-bottom: none; }
+
+/* Custom checkbox */
+.shop-item input[type=checkbox] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  flex-shrink: 0;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+  background: white;
+}
+.shop-item input[type=checkbox]:checked {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.shop-item input[type=checkbox]:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.shop-item input[type=checkbox]:hover:not(:checked) { border-color: var(--primary); }
+
+.shop-item label {
+  flex: 1;
+  cursor: pointer;
+  font-size: 0.9rem;
+  margin: 0;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--text);
+  transition: all 0.2s;
+}
+.shop-item.checked { opacity: 0.5; }
+.shop-item.checked label { text-decoration: line-through; color: var(--muted); }
+.shop-item .qty {
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+  background: var(--bg);
+  padding: 0.15rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.shop-item .remove-item {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 0.25rem;
+  border-radius: 6px;
+  transition: all 0.15s;
+  font-family: inherit;
+}
+.shop-item .remove-item:hover { color: var(--primary); background: rgba(232,68,90,0.08); }
+
+.add-item-row { display: flex; gap: 0.6rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.add-item-row input { flex: 1; }
+
+/* ── SUMMARY BAR ── */
+.summary-bar { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+.summary-bar .chip {
+  background: white;
+  border: 1.5px solid var(--border);
+  color: var(--text);
+  border-radius: 20px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+}
+
+/* ── ICA SECTION ── */
+.ica-export {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid #86efac;
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+}
+.ica-export p { font-size: 0.85rem; color: #166534; margin-bottom: 0.75rem; }
+.ica-links { display: flex; flex-direction: column; gap: 0.4rem; }
+.ica-links a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  border: 1.5px solid #bbf7d0;
+  color: var(--text);
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+.ica-links a:hover { border-color: #4ade80; background: #f0fdf4; transform: translateX(2px); }
+.ica-links a::after { content: '→'; color: #52b788; font-size: 0.85rem; font-weight: 700; }
+
+/* The ICA card header - give it green teal treatment */
+#view-shopping .card:last-child .card-header h2 { color: #166534; }
+#view-shopping .card:last-child { border: 1.5px solid #86efac; background: linear-gradient(to bottom, #f0fdf4, #ffffff); }
+
+/* ── MODAL ── */
+.modal-backdrop {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(26,26,46,0.5);
+  backdrop-filter: blur(8px);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-backdrop.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 20px;
+  padding: 1.75rem;
+  max-width: 520px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.2);
+  animation: modalIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal h2 { font-size: 1.2rem; font-weight: 700; margin-bottom: 1.25rem; color: var(--text); letter-spacing: -0.02em; }
+.modal-footer { display: flex; gap: 0.6rem; justify-content: flex-end; margin-top: 1.4rem; padding-top: 1rem; border-top: 1px solid var(--border); }
+.modal hr { border: none; border-top: 1px solid var(--border); margin: 0.75rem 0 1.1rem; }
+
+/* ── INGREDIENT LIST ── */
+.ingredient-list { list-style: none; margin-bottom: 0.75rem; }
+.ingredient-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+.ingredient-list li:hover { background: var(--bg); }
+.ingredient-list li span { flex: 1; }
+
+/* ── EMPTY STATES ── */
+.empty-state {
+  text-align: center;
+  color: var(--muted);
+  padding: 3rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.empty-state .icon { font-size: 3.5rem; margin-bottom: 1rem; display: block; line-height: 1; }
+
+/* ── VIEWS & TRANSITIONS ── */
+.view { display: none; opacity: 0; transition: opacity 0.2s; }
+.view.active { display: block; animation: fadeIn 0.2s ease forwards; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── BOTTOM NAV (MOBILE) ── */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.08);
+  z-index: 50;
+  padding: 0.5rem 0 calc(0.5rem + env(safe-area-inset-bottom));
+}
+.bottom-nav-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.4rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+  font-family: inherit;
+  transition: color 0.2s;
+}
+.bottom-nav-btn:hover { color: var(--primary); }
+.bottom-nav-btn.active { color: var(--primary); }
+.bottom-nav-btn.active .bnav-icon { transform: scale(1.1); display: inline-block; }
+.bnav-icon { font-size: 1.4rem; line-height: 1; }
+.bnav-label { font-size: 0.68rem; font-weight: 600; letter-spacing: 0.03em; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 640px) {
+  header nav { display: none; }
+  #sync-status { display: none; }
+  .bottom-nav { display: flex; }
+  main { padding: 1rem; padding-bottom: 5.5rem; }
+  .form-row.cols-2, .form-row.cols-3 { grid-template-columns: 1fr; }
+  .meal-grid { grid-template-columns: 1fr; }
+  header { padding: 0.85rem 1rem; }
+  header h1 { font-size: 1.2rem; }
+}
+
+@media (min-width: 641px) {
+  .bottom-nav { display: none !important; }
+}
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🍽️ Meal Planner</h1>
+  <nav>
+    <button class="active" onclick="showView('meals')">Meals</button>
+    <button onclick="showView('planner')">This Week</button>
+    <button onclick="showView('shopping')">Shopping List</button>
+    <button onclick="showView('settings')">⚙️ Settings</button>
+  </nav>
+  <span id="sync-status"></span>
+</header>
+
+<div id="setup-banner" style="display:none;background:#fff3cd;border-bottom:2px solid #ffc107;padding:0.75rem 1.5rem;font-size:0.88rem;">
+  ⚠️ <strong>Shared sync not configured.</strong> Running in local-only mode.
+  To enable real-time sharing, open <code>index.html</code>, find <code>FIREBASE_CONFIG</code> and paste in your Firebase project credentials.
+  <a href="https://console.firebase.google.com" target="_blank" style="color:#856404;font-weight:600;">Open Firebase Console →</a>
+</div>
+
+<main>
+
+  <!-- ── MEALS VIEW ── -->
+  <div id="view-meals" class="view active">
+    <div class="card">
+      <div class="card-header">
+        <h2>Meal Library</h2>
+        <button class="btn btn-primary" onclick="openMealModal()">+ Add Meal</button>
+      </div>
+      <div class="card-body">
+        <div id="meal-grid" class="meal-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PLANNER VIEW ── -->
+  <div id="view-planner" class="view">
+    <div class="card">
+      <div class="card-header">
+        <h2>This Week's Meals</h2>
+        <button class="btn btn-success" onclick="generateShoppingList(); showView('shopping')">Generate Shopping List →</button>
+      </div>
+      <div class="card-body">
+        <div class="week-list" id="week-list"></div>
+        <div class="add-meal-row">
+          <select id="add-meal-select"></select>
+          <button class="btn btn-primary" onclick="addWeekMeal()">+ Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SHOPPING LIST VIEW ── -->
+  <div id="view-shopping" class="view">
+    <div class="card">
+      <div class="card-header">
+        <h2>Shopping List</h2>
+        <div style="display:flex;gap:0.5rem;">
+          <button class="btn btn-outline btn-sm" onclick="selectAll()">Select all</button>
+          <button class="btn btn-outline btn-sm" onclick="clearChecked()">Remove checked</button>
+          <button class="btn btn-primary btn-sm" onclick="generateShoppingList()">Regenerate</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="summary-bar" id="summary-bar"></div>
+        <div id="shop-list"></div>
+        <div class="add-item-row">
+          <input id="extra-item" placeholder="Add extra item…" onkeydown="if(event.key==='Enter') addExtraItem()" />
+          <button class="btn btn-outline" onclick="addExtraItem()">Add</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card ica-card">
+      <div class="card-header"><h2>🛒 ICA Liljeholmen</h2></div>
+      <div class="card-body">
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <button class="btn btn-primary" onclick="openAllInICA()">🛒 Open all in ICA</button>
+        </div>
+        <div id="copy-confirm" style="display:none;color:var(--success);font-size:0.85rem;margin-bottom:0.75rem;">✓ Copied!</div>
+        <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.6rem;">Or click an item to search individually:</p>
+        <div class="ica-links" id="ica-links"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SETTINGS VIEW ── -->
+  <div id="view-settings" class="view">
+    <div class="card">
+      <div class="card-header"><h2>⚙️ Settings</h2></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>Anthropic API Key</label>
+          <p style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">Used for photo recipe import. Stored only in this browser — never sent to GitHub. Get a key at <a href="https://console.anthropic.com" target="_blank" style="color:var(--primary);">console.anthropic.com</a>.</p>
+          <div style="display:flex;gap:0.5rem;">
+            <input type="password" id="settings-api-key" placeholder="sk-ant-…" style="flex:1;font-family:monospace;" />
+            <button class="btn btn-primary" onclick="saveApiKey()">Save</button>
+          </div>
+          <div id="settings-api-status" style="font-size:0.82rem;margin-top:0.5rem;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<nav class="bottom-nav">
+  <button class="bottom-nav-btn" onclick="showView('meals')">
+    <span class="bnav-icon">🥘</span><span class="bnav-label">Meals</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showView('planner')">
+    <span class="bnav-icon">📅</span><span class="bnav-label">Week</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showView('shopping')">
+    <span class="bnav-icon">🛒</span><span class="bnav-label">Shop</span>
+  </button>
+  <button class="bottom-nav-btn" onclick="showView('settings')">
+    <span class="bnav-icon">⚙️</span><span class="bnav-label">Settings</span>
+  </button>
+</nav>
+
+<!-- ── ADD/EDIT MEAL MODAL ── -->
+<div class="modal-backdrop" id="meal-modal">
+  <div class="modal">
+    <h2 id="modal-title">New Meal</h2>
+
+    <!-- Import options -->
+    <div class="form-group" id="url-import-section">
+      <label>Import recipe (optional)</label>
+      <div style="display:flex;gap:0.5rem;margin-bottom:0.5rem;">
+        <input id="recipe-url" placeholder="Paste a recipe URL…" style="flex:1;" />
+        <button class="btn btn-outline" onclick="importFromUrl()">Import URL</button>
+      </div>
+      <div style="display:flex;gap:0.5rem;align-items:center;" id="photo-import-row">
+        <label for="recipe-photo-input" class="btn btn-outline" style="cursor:pointer;margin:0;text-transform:none;letter-spacing:0;font-size:0.85rem;font-weight:600;">📷 Import from photo</label>
+        <input type="file" id="recipe-photo-input" accept="image/*" capture="environment" style="display:none;" onchange="importFromPhoto(this)" />
+        <span id="photo-import-name" style="font-size:0.8rem;color:var(--muted);"></span>
+      </div>
+      <div id="url-import-status" style="font-size:0.82rem;margin-top:0.5rem;color:var(--muted);"></div>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:0.5rem 0 1rem;" />
+
+    <div class="form-group">
+      <label>Meal Name</label>
+      <input id="meal-name" placeholder="e.g. Spaghetti Bolognese" />
+    </div>
+    <div class="form-row cols-2">
+      <div class="form-group">
+        <label>Category</label>
+        <select id="meal-category">
+          <option>Pasta</option>
+          <option>Fish &amp; Seafood</option>
+          <option>Vegetarian</option>
+          <option>Chicken</option>
+          <option>Beef</option>
+          <option>Soup</option>
+          <option>Salad</option>
+          <option>Curry</option>
+          <option>Pizza</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Default Portions</label>
+        <input id="meal-portions" type="number" min="1" value="4" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Ingredients (per <span id="per-portions">4</span> portions)</label>
+      <ul class="ingredient-list" id="ingredient-list"></ul>
+      <div class="form-row cols-3">
+        <input id="ing-name" placeholder="Ingredient" />
+        <input id="ing-amount" placeholder="Amount (e.g. 400g)" />
+        <button class="btn btn-outline" onclick="addIngredientRow()">+</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeMealModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveMeal()">Save Meal</button>
+    </div>
+  </div>
+</div>
+
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, onValue, set } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+// ── FIREBASE CONFIG ─────────────────────────────────────────────────────────
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyCsFsIo40irVBvEO46h0unJRhD9wA2Lg0U",
+  authDomain: "weekly-food-shop.firebaseapp.com",
+  databaseURL: "https://weekly-food-shop-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "weekly-food-shop",
+  storageBucket: "weekly-food-shop.firebasestorage.app",
+  messagingSenderId: "1083741903997",
+  appId: "1:1083741903997:web:46e2e261e3ce3b3d86e514",
+  measurementId: "G-5Y5CEM2JKS"
+};
+
+// ── ANTHROPIC API KEY ────────────────────────────────────────────────────────
+// Get one at https://console.anthropic.com — store it via Settings, not here
+const ANTHROPIC_API_KEY = "";
+// ────────────────────────────────────────────────────────────────────────────
+
+const configured = FIREBASE_CONFIG.databaseURL !== "";
+let db = null;
+let dbRef = null;
+let _suppressSave = false;
+
+// ── STATE ──
+let state = defaultState();
+try { state = JSON.parse(localStorage.getItem('mealplanner') || 'null') || defaultState(); } catch {}
+let editingMealId = null;
+let pendingDay = null;
+
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const SHOP_CATEGORIES = ['Produce','Meat & Fish','Dairy & Eggs','Bakery','Pantry','Frozen','Other'];
+
+if (configured) {
+  const app = initializeApp(FIREBASE_CONFIG);
+  db = getDatabase(app);
+  dbRef = ref(db, 'mealplanner');
+  onValue(dbRef, (snapshot) => {
+    document.getElementById('sync-status').textContent = '🟢 Synced';
+    const data = snapshot.val();
+    if (data) {
+      if (data.meals && !Array.isArray(data.meals)) data.meals = Object.values(data.meals);
+      if (data.week && !Array.isArray(data.week)) data.week = Object.values(data.week);
+      if (data.shoppingList && !Array.isArray(data.shoppingList)) data.shoppingList = Object.values(data.shoppingList);
+      if (data.meals) data.meals.forEach(m => { if (m.ingredients && !Array.isArray(m.ingredients)) m.ingredients = Object.values(m.ingredients); });
+      _suppressSave = true;
+      // Preserve nameSv translations that aren't stored in Firebase
+      const prevList = toArr(state.shoppingList);
+      state = data;
+      if (state.shoppingList) {
+        toArr(state.shoppingList).forEach(item => {
+          const prev = prevList.find(p => p.id === item.id);
+          if (prev?.nameSv) item.nameSv = prev.nameSv;
+        });
+      }
+      _suppressSave = false;
+    }
+    renderMeals();
+    renderPlanner();
+    renderShopping();
+    if (state.shoppingList?.length) translateShoppingListToSwedish();
+  }, (error) => {
+    document.getElementById('sync-status').textContent = '🔴 Connection error';
+    console.error('Firebase error:', error);
+  });
+  document.getElementById('sync-status').textContent = '🟡 Connecting…';
+} else {
+  document.getElementById('setup-banner').style.display = 'block';
+}
+
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem('mealplanner') || 'null') || defaultState();
+  } catch { return defaultState(); }
+}
+function defaultState() {
+  return {
+    meals: [
+      // ── Fish & Seafood (5) ──
+      { id: uid(), name: 'Lemon & Herb Salmon Traybake', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Salmon Fillets', amount: '4 (approx 600g)', category: 'Meat & Fish' },
+        { name: 'Baby Potatoes', amount: '500g', category: 'Produce' },
+        { name: 'Asparagus', amount: '200g', category: 'Produce' },
+        { name: 'Cherry Tomatoes', amount: '200g', category: 'Produce' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Garlic', amount: '3 cloves', category: 'Produce' },
+        { name: 'Olive Oil', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'Fresh Dill', amount: 'small bunch', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Salmon Fishcakes', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Salmon Fillets', amount: '450g', category: 'Meat & Fish' },
+        { name: 'Mashed Potato', amount: '500g', category: 'Produce' },
+        { name: 'Spring Onions', amount: '4', category: 'Produce' },
+        { name: 'Fresh Dill', amount: '2 tbsp', category: 'Produce' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Egg', amount: '1', category: 'Dairy & Eggs' },
+        { name: 'Plain Flour', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'Breadcrumbs', amount: '80g', category: 'Pantry' },
+        { name: 'Sunflower Oil', amount: '2 tbsp', category: 'Pantry' },
+      ]},
+      { id: uid(), name: 'Teriyaki Salmon with Rice', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Salmon Fillets', amount: '4 (approx 600g)', category: 'Meat & Fish' },
+        { name: 'Soy Sauce', amount: '4 tbsp', category: 'Pantry' },
+        { name: 'Honey', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Mirin', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Garlic', amount: '2 cloves', category: 'Produce' },
+        { name: 'Fresh Ginger', amount: '1cm piece', category: 'Produce' },
+        { name: 'Jasmine Rice', amount: '300g', category: 'Pantry' },
+        { name: 'Tenderstem Broccoli', amount: '200g', category: 'Produce' },
+        { name: 'Sesame Seeds', amount: '1 tbsp', category: 'Pantry' },
+        { name: 'Spring Onions', amount: '3', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Baked Cod with Tomatoes & Olives', category: 'Fish & Seafood', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Cod Fillets', amount: '4 (approx 600g)', category: 'Meat & Fish' },
+        { name: 'Cherry Tomatoes', amount: '400g', category: 'Produce' },
+        { name: 'Black Olives', amount: '100g', category: 'Pantry' },
+        { name: 'Capers', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Garlic', amount: '3 cloves', category: 'Produce' },
+        { name: 'Fresh Basil', amount: 'small bunch', category: 'Produce' },
+        { name: 'Olive Oil', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'White Wine', amount: '100ml', category: 'Pantry' },
+        { name: 'Crusty Bread', amount: 'to serve', category: 'Bakery' },
+      ]},
+      { id: uid(), name: 'Seared Tuna Niçoise Salad', category: 'Salad', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Fresh Tuna Steaks', amount: '4 (approx 600g)', category: 'Meat & Fish' },
+        { name: 'New Potatoes', amount: '400g', category: 'Produce' },
+        { name: 'Green Beans', amount: '200g', category: 'Produce' },
+        { name: 'Cherry Tomatoes', amount: '200g', category: 'Produce' },
+        { name: 'Eggs', amount: '4', category: 'Dairy & Eggs' },
+        { name: 'Black Olives', amount: '80g', category: 'Pantry' },
+        { name: 'Anchovy Fillets', amount: '8', category: 'Meat & Fish' },
+        { name: 'Olive Oil', amount: '4 tbsp', category: 'Pantry' },
+        { name: 'Dijon Mustard', amount: '1 tsp', category: 'Pantry' },
+        { name: 'Red Wine Vinegar', amount: '1 tbsp', category: 'Pantry' },
+      ]},
+      // ── Vegetarian (5) ──
+      { id: uid(), name: 'Mushroom Risotto', category: 'Vegetarian', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Arborio Rice', amount: '350g', category: 'Pantry' },
+        { name: 'Chestnut Mushrooms', amount: '400g', category: 'Produce' },
+        { name: 'Dried Porcini Mushrooms', amount: '15g', category: 'Pantry' },
+        { name: 'Vegetable Stock', amount: '1.2 litres', category: 'Pantry' },
+        { name: 'Onion', amount: '1 large', category: 'Produce' },
+        { name: 'Garlic', amount: '2 cloves', category: 'Produce' },
+        { name: 'Dry White Wine', amount: '150ml', category: 'Pantry' },
+        { name: 'Parmesan', amount: '80g', category: 'Dairy & Eggs' },
+        { name: 'Butter', amount: '50g', category: 'Dairy & Eggs' },
+        { name: 'Fresh Thyme', amount: 'few sprigs', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Spinach & Ricotta Pasta', category: 'Pasta', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Pasta (rigatoni or penne)', amount: '400g', category: 'Pantry' },
+        { name: 'Ricotta', amount: '250g', category: 'Dairy & Eggs' },
+        { name: 'Baby Spinach', amount: '200g', category: 'Produce' },
+        { name: 'Garlic', amount: '2 cloves', category: 'Produce' },
+        { name: 'Lemon', amount: '1', category: 'Produce' },
+        { name: 'Nutmeg', amount: 'pinch', category: 'Pantry' },
+        { name: 'Parmesan', amount: '60g', category: 'Dairy & Eggs' },
+        { name: 'Olive Oil', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Chilli Flakes', amount: '½ tsp', category: 'Pantry' },
+      ]},
+      { id: uid(), name: 'Red Lentil Dahl', category: 'Curry', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Red Lentils', amount: '300g', category: 'Pantry' },
+        { name: 'Coconut Milk', amount: '400ml', category: 'Pantry' },
+        { name: 'Chopped Tomatoes', amount: '400g tin', category: 'Pantry' },
+        { name: 'Onion', amount: '1 large', category: 'Produce' },
+        { name: 'Garlic', amount: '3 cloves', category: 'Produce' },
+        { name: 'Fresh Ginger', amount: '2cm piece', category: 'Produce' },
+        { name: 'Ground Cumin', amount: '1 tsp', category: 'Pantry' },
+        { name: 'Ground Coriander', amount: '1 tsp', category: 'Pantry' },
+        { name: 'Turmeric', amount: '½ tsp', category: 'Pantry' },
+        { name: 'Basmati Rice', amount: '300g', category: 'Pantry' },
+        { name: 'Fresh Coriander', amount: 'small bunch', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Roasted Vegetable Tart', category: 'Vegetarian', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Ready-rolled Puff Pastry', amount: '320g sheet', category: 'Frozen' },
+        { name: 'Courgette', amount: '1 large', category: 'Produce' },
+        { name: 'Red Pepper', amount: '2', category: 'Produce' },
+        { name: 'Cherry Tomatoes', amount: '200g', category: 'Produce' },
+        { name: 'Red Onion', amount: '1', category: 'Produce' },
+        { name: 'Feta Cheese', amount: '100g', category: 'Dairy & Eggs' },
+        { name: 'Egg', amount: '1 (for egg wash)', category: 'Dairy & Eggs' },
+        { name: 'Pesto', amount: '3 tbsp', category: 'Pantry' },
+        { name: 'Olive Oil', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Fresh Basil', amount: 'small bunch', category: 'Produce' },
+      ]},
+      { id: uid(), name: 'Butternut Squash Soup', category: 'Soup', portions: 4, source: 'BBC Good Food', ingredients: [
+        { name: 'Butternut Squash', amount: '1 large (approx 1kg)', category: 'Produce' },
+        { name: 'Vegetable Stock', amount: '900ml', category: 'Pantry' },
+        { name: 'Onion', amount: '1 large', category: 'Produce' },
+        { name: 'Garlic', amount: '2 cloves', category: 'Produce' },
+        { name: 'Coconut Milk', amount: '200ml', category: 'Pantry' },
+        { name: 'Fresh Ginger', amount: '2cm piece', category: 'Produce' },
+        { name: 'Chilli Flakes', amount: '½ tsp', category: 'Pantry' },
+        { name: 'Olive Oil', amount: '2 tbsp', category: 'Pantry' },
+        { name: 'Crusty Bread', amount: 'to serve', category: 'Bakery' },
+      ]},
+    ],
+    week: [],
+    shoppingList: [],
+  };
+}
+function saveState() {
+  if (_suppressSave) return;
+  localStorage.setItem('mealplanner', JSON.stringify(state));
+  if (configured && dbRef) {
+    set(dbRef, state)
+      .then(() => { document.getElementById('sync-status').textContent = '🟢 Synced'; })
+      .catch(() => { document.getElementById('sync-status').textContent = '🔴 Sync error'; });
+    document.getElementById('sync-status').textContent = '🟡 Saving…';
+  }
+}
+function uid() { return Math.random().toString(36).slice(2,10); }
+
+// ── VIEWS ──
+function showView(v) {
+  document.querySelectorAll('.view').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('header nav button').forEach((b,i) => {
+    b.classList.toggle('active', ['meals','planner','shopping','settings'][i] === v);
+  });
+  document.querySelectorAll('.bottom-nav-btn').forEach((b,i) => {
+    b.classList.toggle('active', ['meals','planner','shopping','settings'][i] === v);
+  });
+  document.getElementById('view-' + v).classList.add('active');
+  if (v === 'meals') renderMeals();
+  if (v === 'planner') renderPlanner();
+  if (v === 'shopping') renderShopping();
+  if (v === 'settings') {
+    const stored = localStorage.getItem('anthropic_api_key');
+    document.getElementById('settings-api-key').value = stored ? '••••••••••••••••' : '';
+    const status = document.getElementById('settings-api-status');
+    status.textContent = stored ? '✅ API key saved in this browser.' : '';
+    status.style.color = 'var(--success)';
+  }
+}
+
+function saveApiKey() {
+  const val = document.getElementById('settings-api-key').value.trim();
+  const status = document.getElementById('settings-api-status');
+  if (!val || val.startsWith('•')) { status.textContent = 'Enter a new key to save.'; status.style.color = 'var(--muted)'; return; }
+  localStorage.setItem('anthropic_api_key', val);
+  document.getElementById('settings-api-key').value = '••••••••••••••••';
+  status.textContent = '✅ Saved! Photo import is now enabled.';
+  status.style.color = 'var(--success)';
+}
+
+// ── CATEGORY COLORS ──
+const CAT_COLORS = {
+  'Pasta': '#f59f00', 'Fish & Seafood': '#339af0', 'Vegetarian': '#51cf66',
+  'Chicken': '#ff922b', 'Beef': '#e03131', 'Soup': '#cc5de8',
+  'Salad': '#20c997', 'Curry': '#f76707', 'Pizza': '#e64980', 'Other': '#868e96',
+};
+function catColor(cat) { return CAT_COLORS[cat] || '#868e96'; }
+
+// ── MEALS ──
+function renderMeals() {
+  const grid = document.getElementById('meal-grid');
+  if (!state.meals.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🍽️</div><strong>No meals yet</strong>Add your first meal to get started!</div>`;
+    return;
+  }
+  grid.innerHTML = state.meals.map(m => {
+    const color = catColor(m.category);
+    const ingCount = m.ingredients.length;
+    return `
+    <div class="meal-card" style="--category-color:${color};border-left:4px solid ${color}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.5rem;margin-bottom:0.4rem;">
+        <span class="category-tag">${m.category}</span>
+        ${m.source ? `<span style="font-size:0.7rem;color:var(--muted);">📖 ${m.source}</span>` : ''}
+      </div>
+      <h3>${m.name}</h3>
+      <ul class="ingredients">${m.ingredients.slice(0,4).map(i=>`<li>${i.name} <span style="color:var(--muted);font-weight:400">— ${i.amount}</span></li>`).join('')}
+        ${m.ingredients.length > 4 ? `<li style="color:var(--muted);font-style:italic">+${m.ingredients.length-4} more…</li>` : ''}
+      </ul>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:0.75rem;padding-top:0.65rem;border-top:1px solid var(--border);gap:0.5rem;">
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+          <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.7rem;font-weight:500;background:#f5f5f8;padding:0.18rem 0.5rem;border-radius:6px;color:var(--muted);">🧑‍🍳 ${m.portions} portions</span>
+          <span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.7rem;font-weight:500;background:#f5f5f8;padding:0.18rem 0.5rem;border-radius:6px;color:var(--muted);">🥕 ${ingCount} ingredient${ingCount !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="actions">
+          <button class="btn btn-outline btn-sm" onclick="openMealModal('${m.id}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteMeal('${m.id}')">Delete</button>
+        </div>
+      </div>
+    </div>
+  `}).join('');
+}
+
+function openMealModal(id) {
+  editingMealId = id || null;
+  const meal = id ? state.meals.find(m => m.id === id) : null;
+  document.getElementById('modal-title').textContent = meal ? 'Edit Meal' : 'New Meal';
+  document.getElementById('meal-name').value = meal ? meal.name : '';
+  document.getElementById('meal-category').value = meal ? meal.category : 'Other';
+  document.getElementById('meal-portions').value = meal ? meal.portions : 4;
+  document.getElementById('per-portions').textContent = meal ? meal.portions : 4;
+  document.getElementById('meal-portions').oninput = e => document.getElementById('per-portions').textContent = e.target.value;
+  window._tmpIngredients = meal ? [...meal.ingredients.map(i => ({...i}))] : [];
+  renderIngredientList();
+  document.getElementById('recipe-url').value = '';
+  document.getElementById('url-import-status').textContent = '';
+  document.getElementById('photo-import-name').textContent = '';
+  document.getElementById('url-import-section').style.display = meal ? 'none' : 'block';
+  document.getElementById('meal-modal').classList.add('open');
+}
+function closeMealModal() { document.getElementById('meal-modal').classList.remove('open'); }
+
+async function importFromUrl() {
+  const url = document.getElementById('recipe-url').value.trim();
+  const status = document.getElementById('url-import-status');
+  if (!url) return;
+  status.textContent = '⏳ Fetching recipe…';
+  status.style.color = 'var(--muted)';
+  try {
+    const proxyRes = await fetch(`https://corsproxy.io/?${encodeURIComponent(url)}`);
+    if (!proxyRes.ok) throw new Error(`HTTP ${proxyRes.status}`);
+    const html = await proxyRes.text();
+    const matches = [...html.matchAll(/<script[^>]+type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];
+    let recipe = null;
+    for (const m of matches) {
+      try {
+        const json = JSON.parse(m[1]);
+        const find = obj => {
+          if (!obj) return null;
+          if (obj['@type'] === 'Recipe') return obj;
+          if (Array.isArray(obj)) { for (const o of obj) { const r = find(o); if (r) return r; } }
+          if (obj['@graph']) return find(obj['@graph']);
+          return null;
+        };
+        recipe = find(json);
+        if (recipe) break;
+      } catch {}
+    }
+    if (!recipe) { status.textContent = '❌ No recipe data found on this page.'; status.style.color = '#c1121f'; return; }
+
+    if (recipe.name) document.getElementById('meal-name').value = recipe.name;
+    const yld = recipe.recipeYield;
+    const portions = parseInt(Array.isArray(yld) ? yld[0] : yld) || 4;
+    document.getElementById('meal-portions').value = portions;
+    document.getElementById('per-portions').textContent = portions;
+
+    const CATS = {
+      'Meat & Fish': ['salmon','cod','tuna','chicken','beef','pork','lamb','prawn','shrimp','fish','bacon','sausage','mince','steak','anchovy','sardine','haddock','mackerel'],
+      'Dairy & Eggs': ['milk','cream','butter','cheese','yogurt','egg','ricotta','parmesan','cheddar','mozzarella','creme fraiche'],
+      'Produce': ['onion','garlic','tomato','potato','carrot','pepper','lemon','lime','spinach','broccoli','courgette','mushroom','ginger','basil','dill','parsley','coriander','spring onion','leek','celery','aubergine','cucumber','lettuce','avocado','herbs'],
+      'Bakery': ['bread','flour','breadcrumb','roll','baguette','pitta','wrap','pastry','tortilla'],
+      'Frozen': ['frozen'],
+    };
+    function guessCategory(name) {
+      const lower = name.toLowerCase();
+      for (const [cat, kws] of Object.entries(CATS)) { if (kws.some(k => lower.includes(k))) return cat; }
+      return 'Pantry';
+    }
+    window._tmpIngredients = (recipe.recipeIngredient || []).map(raw => {
+      let s = raw.trim()
+        .replace(/¼/g,'1/4').replace(/½/g,'1/2').replace(/¾/g,'3/4')
+        .replace(/⅓/g,'1/3').replace(/⅔/g,'2/3');
+
+      const UNITS = 'kg|ml|tbsp|tsp|oz|lb|cups?|handful|pinch|bunch|cloves?|cans?|tins?|slices?|sprigs?|heads?|large|medium|small|g';
+      const amtRe = new RegExp(`^([\\d\\s\/\.x]+(?:${UNITS})?(?=\\s|$)\.?\\s*)`, 'i');
+      const amtMatch = s.match(amtRe);
+      const amount = amtMatch ? amtMatch[1].trim() : '';
+      let name = s.slice(amount.length).trim();
+
+      name = name.replace(/\s*[,(].*$/, '').trim();
+      name = name.replace(/\s+(deseeded|chopped|sliced|diced|grated|peeled|crushed|minced|halved|quartered|roughly|finely|thinly|coarsely|and\s+\w+\s+\w+)\s*$/gi, '').trim();
+      name = name.replace(/^(fresh|dried|frozen|roughly|finely|thinly|coarsely|freshly|ground|whole|chopped|grated|sliced|diced|peeled|deseeded|crushed|minced|large|small|medium)\s+/gi, '').trim();
+      name = name.charAt(0).toUpperCase() + name.slice(1);
+
+      return { name: name || raw, amount, category: guessCategory(name || raw) };
+    });
+    renderIngredientList();
+    status.textContent = `✅ Imported ${window._tmpIngredients.length} ingredients — review and save.`;
+    status.style.color = 'var(--success)';
+  } catch (e) {
+    status.textContent = `❌ Could not fetch recipe: ${e.message}`;
+    status.style.color = '#c1121f';
+  }
+}
+
+async function importFromPhoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const status = document.getElementById('url-import-status');
+  document.getElementById('photo-import-name').textContent = file.name;
+
+  const apiKey = ANTHROPIC_API_KEY || localStorage.getItem('anthropic_api_key');
+  if (!apiKey) {
+    status.textContent = '❌ No API key set. Go to ⚙️ Settings and add your Anthropic API key.';
+    status.style.color = '#c1121f';
+    return;
+  }
+
+  status.textContent = '⏳ Reading recipe from photo…';
+  status.style.color = 'var(--muted)';
+
+  try {
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => resolve(e.target.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 1024,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: file.type, data: base64 } },
+            { type: 'text', text: `Extract the recipe from this image and return ONLY a JSON object with this exact structure (no markdown, no explanation):\n{"name":"Recipe Name","portions":4,"ingredients":[{"name":"Ingredient","amount":"200g"},{"name":"Another","amount":"1 tbsp"}]}\nUse short ingredient names without prep notes (no "finely chopped", "peeled", etc). If portions are not visible, use 4.` }
+          ]
+        }]
+      })
+    });
+
+    if (!res.ok) throw new Error(`API error ${res.status}`);
+    const data = await res.json();
+    const text = data.content[0].text.trim();
+    const cleaned = text.replace(/^```[a-z]*\n?/i, '').replace(/```$/,'').trim();
+    const recipe = JSON.parse(cleaned);
+
+    if (recipe.name) document.getElementById('meal-name').value = recipe.name;
+    if (recipe.portions) {
+      document.getElementById('meal-portions').value = recipe.portions;
+      document.getElementById('per-portions').textContent = recipe.portions;
+    }
+
+    const CATS = {
+      'Meat & Fish': ['salmon','cod','tuna','chicken','beef','pork','lamb','prawn','shrimp','fish','bacon','sausage','mince','steak','anchovy','haddock','mackerel'],
+      'Dairy & Eggs': ['milk','cream','butter','cheese','yogurt','egg','ricotta','parmesan','cheddar','mozzarella'],
+      'Produce': ['onion','garlic','tomato','potato','carrot','pepper','lemon','lime','spinach','broccoli','courgette','mushroom','ginger','basil','dill','parsley','coriander','spring onion','leek','celery','aubergine','cucumber','lettuce','avocado'],
+      'Bakery': ['bread','flour','breadcrumb','roll','baguette','pitta','wrap','pastry','tortilla'],
+      'Frozen': ['frozen'],
+    };
+    function guessCategory(name) {
+      const lower = name.toLowerCase();
+      for (const [cat, kws] of Object.entries(CATS)) { if (kws.some(k => lower.includes(k))) return cat; }
+      return 'Pantry';
+    }
+
+    window._tmpIngredients = (recipe.ingredients || []).map(i => ({
+      name: i.name,
+      amount: i.amount || '',
+      category: guessCategory(i.name),
+    }));
+    renderIngredientList();
+    status.textContent = `✅ Imported ${window._tmpIngredients.length} ingredients — review and save.`;
+    status.style.color = 'var(--success)';
+  } catch (e) {
+    status.textContent = `❌ Could not read photo: ${e.message}`;
+    status.style.color = '#c1121f';
+  }
+  input.value = '';
+}
+
+function renderIngredientList() {
+  document.getElementById('ingredient-list').innerHTML = window._tmpIngredients.map((ing, i) => `
+    <li>
+      <span><strong>${ing.name}</strong> — ${ing.amount} <em style="color:var(--muted);font-size:0.78rem;">(${ing.category})</em></span>
+      <button class="btn-icon" onclick="removeIngredient(${i})">✕</button>
+    </li>
+  `).join('');
+}
+function removeIngredient(i) { window._tmpIngredients.splice(i, 1); renderIngredientList(); }
+function addIngredientRow() {
+  const name = document.getElementById('ing-name').value.trim();
+  const amount = document.getElementById('ing-amount').value.trim();
+  if (!name) return;
+  const cat = guessCategory(name);
+  window._tmpIngredients.push({ name, amount: amount || '–', category: cat });
+  document.getElementById('ing-name').value = '';
+  document.getElementById('ing-amount').value = '';
+  renderIngredientList();
+  document.getElementById('ing-name').focus();
+}
+document.getElementById('ing-name').addEventListener('keydown', e => { if (e.key === 'Enter') addIngredientRow(); });
+
+function guessCategory(name) {
+  const n = name.toLowerCase();
+  if (/beef|pork|chicken|lamb|mince|sausage|bacon|salmon|tuna|fish|prawn|shrimp|turkey/.test(n)) return 'Meat & Fish';
+  if (/milk|cream|cheese|butter|egg|yogurt|parmesan|cheddar/.test(n)) return 'Dairy & Eggs';
+  if (/bread|baguette|roll|bun|tortilla|pitta/.test(n)) return 'Bakery';
+  if (/frozen|ice/.test(n)) return 'Frozen';
+  if (/onion|garlic|carrot|tomato|lettuce|spinach|pepper|courgette|potato|mushroom|ginger|herb|parsley|basil|celery|broccoli|leek|cucumber/.test(n)) return 'Produce';
+  return 'Pantry';
+}
+
+function saveMeal() {
+  const name = document.getElementById('meal-name').value.trim();
+  if (!name) { alert('Please enter a meal name.'); return; }
+  const meal = {
+    id: editingMealId || uid(),
+    name,
+    category: document.getElementById('meal-category').value,
+    portions: parseInt(document.getElementById('meal-portions').value) || 4,
+    ingredients: window._tmpIngredients,
+  };
+  if (editingMealId) {
+    const idx = state.meals.findIndex(m => m.id === editingMealId);
+    state.meals[idx] = meal;
+  } else {
+    state.meals.push(meal);
+  }
+  saveState();
+  closeMealModal();
+  renderMeals();
+}
+
+function deleteMeal(id) {
+  if (!confirm('Delete this meal?')) return;
+  state.meals = state.meals.filter(m => m.id !== id);
+  for (const day in state.week) { if (state.week[day]?.mealId === id) delete state.week[day]; }
+  saveState();
+  renderMeals();
+}
+
+// ── WEEK PLANNER ──
+function renderPlanner() {
+  if (!Array.isArray(state.week)) state.week = [];
+  const list = document.getElementById('week-list');
+  if (!state.week.length) {
+    list.innerHTML = `<div class="empty-state"><div class="icon">📅</div><strong>No meals planned yet</strong>Pick from the dropdown below to start building your week.</div>`;
+  } else {
+    list.innerHTML = state.week.map((entry, i) => {
+      const meal = state.meals.find(m => m.id === entry.mealId);
+      if (!meal) return '';
+      const color = catColor(meal.category);
+      return `
+        <div class="week-item" style="--category-color:${color}">
+          <div style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></div>
+          <div style="flex:1">
+            <div class="meal-name">${meal.name}</div>
+            <div class="meal-cat">${meal.category}</div>
+          </div>
+          <div class="portions-ctrl">
+            <button onclick="changePortions(${i}, -1)">−</button>
+            <span>${entry.portions} portions</span>
+            <button onclick="changePortions(${i}, 1)">+</button>
+          </div>
+          <button class="remove-btn" onclick="removeWeekMeal(${i})">✕</button>
+        </div>`;
+    }).join('');
+  }
+  const sel = document.getElementById('add-meal-select');
+  sel.innerHTML = state.meals.length
+    ? state.meals.map(m => `<option value="${m.id}">${m.name}</option>`).join('')
+    : '<option value="">No meals in library</option>';
+}
+
+function addWeekMeal() {
+  if (!Array.isArray(state.week)) state.week = [];
+  const mealId = document.getElementById('add-meal-select').value;
+  if (!mealId) return;
+  const meal = state.meals.find(m => m.id === mealId);
+  state.week.push({ mealId, portions: meal ? meal.portions : 4 });
+  saveState();
+  renderPlanner();
+}
+
+function removeWeekMeal(i) {
+  state.week.splice(i, 1);
+  saveState();
+  renderPlanner();
+}
+
+function changePortions(i, delta) {
+  state.week[i].portions = Math.max(1, (state.week[i].portions || 1) + delta);
+  saveState();
+  renderPlanner();
+}
+
+// ── SHOPPING LIST ──
+function toArr(val) {
+  if (!val) return [];
+  return Array.isArray(val) ? val : Object.values(val);
+}
+
+function generateShoppingList() {
+  const aggregated = {};
+  const weekEntries = toArr(state.week);
+  const meals = toArr(state.meals);
+
+  for (const entry of weekEntries) {
+    if (!entry) continue;
+    const meal = meals.find(m => m.id === entry.mealId);
+    if (!meal) continue;
+    const ingredients = toArr(meal.ingredients);
+    const scale = entry.portions / (meal.portions || 4);
+    for (const ing of ingredients) {
+      const key = ing.name.toLowerCase() + '|' + ing.category;
+      if (!aggregated[key]) aggregated[key] = { name: ing.name, category: ing.category, rawAmounts: [] };
+      aggregated[key].rawAmounts.push({ amount: ing.amount, scale });
+    }
+  }
+  const shoppingList = toArr(state.shoppingList);
+  const extras = shoppingList.filter(i => i.extra);
+  state.shoppingList = Object.values(aggregated).map(item => {
+    const existing = shoppingList.find(s => s.name.toLowerCase() === item.name.toLowerCase());
+    return {
+      id: existing?.id || uid(),
+      name: item.name,
+      amount: summariseAmounts(item.rawAmounts),
+      category: item.category,
+      checked: existing?.checked || false,
+      extra: false,
+    };
+  }).concat(extras);
+  saveState();
+  renderShopping();
+  translateShoppingListToSwedish();
+}
+
+async function translateShoppingListToSwedish() {
+  const items = toArr(state.shoppingList);
+  for (const item of items) {
+    if (item.nameSv) continue;
+    try {
+      const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(item.name)}&langpair=en|sv`);
+      const data = await res.json();
+      if (data?.responseStatus === 429) break;
+      const sv = data?.responseData?.translatedText;
+      if (sv && sv !== item.name && !sv.toLowerCase().includes('mymemory')) item.nameSv = sv;
+    } catch (_) {}
+  }
+  saveState();
+  renderICALinks();
+}
+
+function summariseAmounts(rawAmounts) {
+  const totals = {};
+  let hasUnit = false;
+  for (const { amount, scale } of rawAmounts) {
+    const m = amount.match(/^([\d.\/]+)\s*([a-zA-Z%]+)?/);
+    if (m) {
+      const num = eval(m[1]) * scale;
+      const unit = (m[2] || '').toLowerCase();
+      totals[unit] = (totals[unit] || 0) + num;
+      hasUnit = true;
+    }
+  }
+  if (!hasUnit) return rawAmounts.map(r => r.amount).join(', ');
+  return Object.entries(totals).map(([unit, num]) => {
+    const rounded = Math.round(num * 10) / 10;
+    return rounded + (unit ? ' ' + unit : '');
+  }).join(' + ');
+}
+
+function renderShopping() {
+  if (!Array.isArray(state.shoppingList)) state.shoppingList = toArr(state.shoppingList);
+  if (!state.shoppingList.length) {
+    document.getElementById('shop-list').innerHTML = '<div class="empty-state"><div class="icon">🛒</div>No items yet. Plan your week first and click "Generate Shopping List".</div>';
+    document.getElementById('ica-links').innerHTML = '';
+    document.getElementById('summary-bar').innerHTML = '';
+    return;
+  }
+
+  const total = state.shoppingList.length;
+  const checked = state.shoppingList.filter(i => i.checked).length;
+  document.getElementById('summary-bar').innerHTML = `
+    <span class="chip">${total} items</span>
+    <span class="chip">${checked} in basket</span>
+    <span class="chip">${total - checked} remaining</span>
+  `;
+
+  const grouped = {};
+  for (const item of state.shoppingList) {
+    if (!grouped[item.category]) grouped[item.category] = [];
+    grouped[item.category].push(item);
+  }
+
+  const order = [...SHOP_CATEGORIES, 'Extra'];
+  const html = order.filter(c => grouped[c]).map(cat => `
+    <div class="shop-category">
+      <h3>${cat}</h3>
+      ${grouped[cat].map(item => `
+        <div class="shop-item ${item.checked ? 'checked' : ''}" id="si-${item.id}">
+          <input type="checkbox" id="chk-${item.id}" ${item.checked ? 'checked' : ''} onchange="toggleItem('${item.id}')" />
+          <label for="chk-${item.id}">${item.name}</label>
+          <span class="qty">${item.amount}</span>
+          <button class="remove-item" onclick="removeItem('${item.id}')">✕</button>
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+
+  document.getElementById('shop-list').innerHTML = html;
+  renderICALinks();
+}
+
+function toggleItem(id) {
+  const item = state.shoppingList.find(i => i.id === id);
+  if (item) { item.checked = !item.checked; saveState(); renderShopping(); }
+}
+function removeItem(id) {
+  state.shoppingList = state.shoppingList.filter(i => i.id !== id);
+  saveState();
+  renderShopping();
+}
+function selectAll() {
+  const allChecked = state.shoppingList.every(i => i.checked);
+  state.shoppingList.forEach(i => i.checked = !allChecked);
+  saveState();
+  renderShopping();
+  renderICALinks();
+}
+
+function clearChecked() {
+  state.shoppingList = state.shoppingList.filter(i => !i.checked);
+  saveState();
+  renderShopping();
+}
+function addExtraItem() {
+  const val = document.getElementById('extra-item').value.trim();
+  if (!val) return;
+  state.shoppingList.push({ id: uid(), name: val, amount: '', category: 'Extra', checked: false, extra: true });
+  document.getElementById('extra-item').value = '';
+  saveState();
+  renderShopping();
+}
+
+function openAllInICA() {
+  const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
+  if (!unchecked.length) return;
+
+  let blocked = false;
+  unchecked.forEach(item => {
+    const url = `https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.nameSv || item.name)}`;
+    const w = window.open(url, '_blank');
+    if (!w || w.closed) blocked = true;
+  });
+
+  if (blocked) {
+    alert('Some tabs were blocked. Click the popup-blocked icon in your address bar, choose "Always allow popups from this site", then try again.');
+  }
+}
+
+function copyListToClipboard() {
+  const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
+  const text = unchecked.map(i => i.amount ? `${i.name} – ${i.amount}` : i.name).join('\n');
+  navigator.clipboard.writeText(text).then(() => {
+    const confirm = document.getElementById('copy-confirm');
+    confirm.style.display = 'block';
+    setTimeout(() => confirm.style.display = 'none', 3000);
+  });
+}
+
+function renderICALinks() {
+  const unchecked = toArr(state.shoppingList).filter(i => !i.checked);
+  document.getElementById('ica-links').innerHTML = unchecked.map(item =>
+    `<a href="https://handlaprivatkund.ica.se/stores/1003417/search?q=${encodeURIComponent(item.nameSv || item.name)}" target="_blank" rel="noopener noreferrer">
+      <span>${item.name}${item.amount ? ` <span style="color:var(--muted);font-size:0.82rem;">${item.amount}</span>` : ''}${item.nameSv ? ` <span style="color:var(--muted);font-size:0.75rem;">(${item.nameSv})</span>` : ' <span style="color:var(--muted);font-size:0.75rem;">⏳</span>'}</span>
+    </a>`
+  ).join('');
+}
+
+
+// Expose functions to global scope (required for inline onclick with type="module")
+Object.assign(window, {
+  showView, openMealModal, closeMealModal, saveMeal, deleteMeal,
+  addIngredientRow, removeIngredient,
+  addWeekMeal, removeWeekMeal, changePortions,
+  generateShoppingList, toggleItem, removeItem, selectAll, clearChecked, addExtraItem, copyListToClipboard, openAllInICA, importFromUrl, importFromPhoto, saveApiKey,
+});
+
+// Only render immediately if Firebase is not configured (local-only mode)
+if (!configured) renderMeals();
+</script>
+</body>
+</html>
